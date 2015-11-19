@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 import XCTest
-import Upsurge
+@testable import Upsurge
 
 class TensorTests: XCTestCase {
     var diagonalTensor3D: Tensor<Real>!
@@ -73,5 +73,20 @@ class TensorTests: XCTestCase {
         matrix = diagonalTensor4D.extractMatrix(0, 0, 0, 0)
         expected = RealMatrix([[1]])
         XCTAssertEqual(matrix, expected)
+    }
+    
+    func testContinuity() {
+        XCTAssert(diagonalTensor3D[1...4, .All, .All].isContiguous)
+        XCTAssert(diagonalTensor3D[4, 2, 1...2].isContiguous)
+        XCTAssert(diagonalTensor3D[1, 5, .All].isContiguous)
+        XCTAssert(diagonalTensor3D[1, .All, .All].isContiguous)
+        XCTAssert(diagonalTensor3D[1, 2...3, .All].isContiguous)
+    }
+    
+    func testNoContinuity() {
+        XCTAssertFalse(diagonalTensor3D[1...2, 3...4, 1].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[.All, 3...4, .All].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[1, .All, 1].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[.All, 1, 1].isContiguous)
     }
 }
