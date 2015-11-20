@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Upsurge.playground">
+      location = "group:Upsurge.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Upsurge.xcodeproj">
+      location = "group:Upsurge.playground">
    </FileRef>
 </Workspace>
