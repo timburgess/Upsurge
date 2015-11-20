@@ -156,9 +156,13 @@ public class Tensor<Element: Value> : Equatable {
 
      - Precondition: All but the last two intervals must be a specific index, not a range. If the second-last element is a range, the last element must span the full dimension.
      */
-    public func extractMatrix(intervals: Interval...) -> Matrix<Element> {
+    public func extractMatrix(intervals: [Interval]) -> Matrix<Element> {
         let span = Span(dimensions: dimensions, intervals: intervals)
         return extractMatrix(span)
+    }
+    
+    public func extractMatrix(intervals: Interval...) -> Matrix<Element> {
+        return extractMatrix(intervals)
     }
 
     public func copy() -> Tensor {
