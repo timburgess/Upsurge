@@ -217,3 +217,9 @@ public func swap<T>(lhs: Tensor<T>, rhs: Tensor<T>) {
     swap(&lhs.dimensions, &rhs.dimensions)
     swap(&lhs.elements, &rhs.elements)
 }
+
+// MARK: - Dimensional Congruency
+
+public func ≅<T>(lhs: Tensor<T>, rhs: Tensor<T>) -> Bool {
+    return Span(zeroTo: lhs.dimensions) ≅ Span(zeroTo: rhs.dimensions)
+}

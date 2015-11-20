@@ -191,3 +191,9 @@ public func ==<T: Equatable>(lhs: Matrix<T>, rhs: TensorSlice<T>) -> Bool {
     }
     return true
 }
+
+// MARK: - Dimensional Congruency
+
+public func ≅<T>(lhs: TensorSlice<T>, rhs: TensorSlice<T>) -> Bool {
+    return lhs.span ≅ rhs.span
+}

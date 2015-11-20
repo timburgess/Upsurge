@@ -128,7 +128,7 @@ class SpanGenerator: GeneratorType {
 
 infix operator ≅ { precedence 130 }
 func ≅(lhs: Span, rhs: Span) -> Bool {
-    if lhs.dimensions.count == rhs.dimensions.count {
+    if lhs.dimensions == rhs.dimensions {
         return true
     }
 
