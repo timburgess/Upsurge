@@ -71,13 +71,13 @@ public struct TensorSlice<Element: Value> : Equatable {
     
     public subscript(slice: [Interval]) -> TensorSlice<Element> {
         get {
-            let span = Span(dimensions: dimensions, elements: slice)
+            let span = Span(dimensions: dimensions, intervals: slice)
             assert(spanIsValid(span))
             let baseSlice = Span(base: self.span.startIndex, subSpan: span)
             return TensorSlice(base: base, span: baseSlice)
         }
         set {
-            let span = Span(dimensions: dimensions, elements: slice)
+            let span = Span(dimensions: dimensions, intervals: slice)
             assert(span ≅ newValue.span)
             for index in span  {
                 let baseIndex = zip(self.span.startIndex, index).map{ $0 + $1 }

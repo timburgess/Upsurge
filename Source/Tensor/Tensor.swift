@@ -107,11 +107,11 @@ public class Tensor<Element: Value> : Equatable {
 
     public subscript(slice: [Interval]) -> TensorSlice<Element> {
         get {
-            let span = Span(dimensions: dimensions, elements: slice)
+            let span = Span(dimensions: dimensions, intervals: slice)
             return self[span]
         }
         set {
-            let span = Span(dimensions: dimensions, elements: slice)
+            let span = Span(dimensions: dimensions, intervals: slice)
             self[span] = newValue
         }
     }
@@ -157,7 +157,7 @@ public class Tensor<Element: Value> : Equatable {
      - Precondition: All but the last two intervals must be a specific index, not a range. If the second-last element is a range, the last element must span the full dimension.
      */
     public func extractMatrix(intervals: Interval...) -> Matrix<Element> {
-        let span = Span(dimensions: dimensions, elements: intervals)
+        let span = Span(dimensions: dimensions, intervals: intervals)
         return extractMatrix(span)
     }
 

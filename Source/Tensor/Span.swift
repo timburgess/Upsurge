@@ -49,9 +49,10 @@ struct Span : ArrayLiteralConvertible, SequenceType {
         self.init(ranges: elements)
     }
     
-    init(dimensions: [Int], elements: [Interval]) {
+    init(dimensions: [Int], intervals: [Interval]) {
+        assert(intervalIsValid(dimensions, intervals: intervals))
         var ranges = [Element]()
-        for (dimension, interval) in zip(dimensions, elements) {
+        for (dimension, interval) in zip(dimensions, intervals) {
             switch interval {
             case .All:
                 ranges.append(0..<dimension)
@@ -134,4 +135,21 @@ func ≅(lhs: Span, rhs: Span) -> Bool {
     let (max, min) = lhs.dimensions.count > rhs.dimensions.count ? (lhs, rhs) : (rhs, lhs)
     let diff = max.dimensions.count - min.dimensions.count
     return max.dimensions[0..<diff].reduce(1, combine: *) == 1 && Array(max.dimensions[diff..<max.dimensions.count]) == min.dimensions
+}
+
+// MARK: - Dimensional Validity
+
+func intervalIsValid(dimensions: [Int], intervals: [Interval]) -> Bool {
+    assert(intervals.count == dimensions.count)
+    for (i, interval) in intervals.enumerate() {
+        switch interval {
+        case .All:
+            continue
+        case .Range(let range):
+            if range.startIndex < 0 && dimensions[i] <= range.endIndex {
+                return false
+            }
+        }
+    }
+    return true
 }
