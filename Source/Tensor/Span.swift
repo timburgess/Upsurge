@@ -28,7 +28,6 @@ struct Span : ArrayLiteralConvertible, SequenceType {
     var startIndex: [Int] {
         return ranges.map{ $0.startIndex }
     }
-
     var endIndex: [Int] {
         return ranges.map{ $0.endIndex }
     }
@@ -36,9 +35,11 @@ struct Span : ArrayLiteralConvertible, SequenceType {
     var count: Int {
         return dimensions.reduce(1, combine: *)
     }
-
     var dimensions: [Int] {
         return ranges.map{ $0.count }
+    }
+    var rank: Int {
+        return dimensions.count
     }
     
     init(ranges: [Element]) {
@@ -132,9 +133,9 @@ func ≅(lhs: Span, rhs: Span) -> Bool {
         return true
     }
 
-    let (max, min) = lhs.dimensions.count > rhs.dimensions.count ? (lhs, rhs) : (rhs, lhs)
-    let diff = max.dimensions.count - min.dimensions.count
-    return max.dimensions[0..<diff].reduce(1, combine: *) == 1 && Array(max.dimensions[diff..<max.dimensions.count]) == min.dimensions
+    let (max, min) = lhs.rank > rhs.rank ? (lhs, rhs) : (rhs, lhs)
+    let diff = max.rank - min.rank
+    return max.dimensions[0..<diff].reduce(1, combine: *) == 1 && Array(max.dimensions[diff..<max.rank]) == min.dimensions
 }
 
 // MARK: - Dimensional Validity

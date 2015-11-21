@@ -27,6 +27,11 @@ public struct TensorSlice<Element: Value> : Equatable {
     public var count: Int {
         return dimensions.reduce(1, combine: *)
     }
+    public var rank: Int {
+        get {
+            return dimensions.count
+        }
+    }
     
     var span: Span
 
@@ -39,7 +44,7 @@ public struct TensorSlice<Element: Value> : Equatable {
     }
     
     init(base: Tensor<Element>, span: Span) {
-        assert(span.dimensions.count == base.dimensions.count)
+        assert(span.rank == base.rank)
         self.base = base
         self.span = span
         self.dimensions = span.dimensions
@@ -112,8 +117,6 @@ public struct TensorSlice<Element: Value> : Equatable {
     }
     
     public var isContiguous: Bool {
-        let rank = dimensions.count
-        
         let onesCount: Int
         if let index = dimensions.indexOf({ $0 != 1 }) {
             onesCount = index
@@ -133,7 +136,7 @@ public struct TensorSlice<Element: Value> : Equatable {
     }
     
     public func indexIsValid(indices: [Int]) -> Bool {
-        assert(indices.count == dimensions.count)
+        assert(indices.count == rank)
         for (i, index) in indices.enumerate() {
             if index < 0 && dimensions[i] <= index {
                 return false
@@ -143,7 +146,7 @@ public struct TensorSlice<Element: Value> : Equatable {
     }
     
     func spanIsValid(indices: Span) -> Bool {
-        assert(indices.dimensions.count == dimensions.count)
+        assert(indices.rank == rank)
         for (i, range) in indices.enumerate() {
             if range.startIndex < 0 && dimensions[i] <= range.endIndex {
                 return false

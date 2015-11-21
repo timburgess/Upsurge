@@ -29,6 +29,11 @@ public class Tensor<Element: Value> : Equatable {
     public var count: Int {
         return dimensions.reduce(1, combine: *)
     }
+    public var rank: Int {
+        get {
+            return dimensions.count
+        }
+    }
 
     public var pointer: UnsafePointer<Element> {
         return elements.pointer
@@ -82,8 +87,8 @@ public class Tensor<Element: Value> : Equatable {
 
     public subscript(indices: Index) -> Element {
         get {
-            var index = [Int](count: dimensions.count, repeatedValue: 0)
-            let indexReplacementRage: Range<Int> = dimensions.count - indices.count..<dimensions.count
+            var index = [Int](count: rank, repeatedValue: 0)
+            let indexReplacementRage: Range<Int> = rank - indices.count..<rank
             index.replaceRange(indexReplacementRage, with: zip(index[indexReplacementRage], indices).map{ $0 + $1 })
             assert(indexIsValid(index))
             let elementsIndex = linearIndex(index)
@@ -137,13 +142,13 @@ public class Tensor<Element: Value> : Equatable {
 
     func extractMatrix(span: Span) -> Matrix<Element> {
         assert(spanIsValid(span))
-        span.ranges[0..<span.dimensions.count - 2].forEach{ assert($0.count == 1) }
-        if span[span.dimensions.count - 2].count != 1 {
+        span.ranges[0..<span.rank - 2].forEach{ assert($0.count == 1) }
+        if span[span.rank - 2].count != 1 {
             assert(span.ranges.last!.count == dimensions.last!)
         }
 
-        let rows = span[span.dimensions.count - 2].count
-        let columns = span[span.dimensions.count - 1].count
+        let rows = span[span.rank - 2].count
+        let columns = span[span.rank - 1].count
 
         let pointerOffset = linearIndex(span.startIndex)
         let count = span.count
@@ -172,14 +177,14 @@ public class Tensor<Element: Value> : Equatable {
     private func linearIndex(indices: Index) -> Int {
         assert(indexIsValid(indices))
         var index = indices[0]
-        for (i, dim) in dimensions[1..<dimensions.count].enumerate() {
+        for (i, dim) in dimensions[1..<rank].enumerate() {
             index = (dim * index) + indices[i+1]
         }
         return index
     }
 
     public func indexIsValid(indices: Index) -> Bool {
-        assert(indices.count == dimensions.count)
+        assert(indices.count == rank)
         for (i, index) in indices.enumerate() {
             if index < 0 && dimensions[i] <= index {
                 return false
@@ -189,7 +194,7 @@ public class Tensor<Element: Value> : Equatable {
     }
 
     func spanIsValid(span: Span) -> Bool {
-        assert(span.dimensions.count == dimensions.count)
+        assert(span.rank == rank)
         for (i, range) in span.enumerate() {
             if range.startIndex < 0 && dimensions[i] <= range.endIndex {
                 return false
