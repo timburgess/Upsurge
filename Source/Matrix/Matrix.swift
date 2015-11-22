@@ -57,6 +57,13 @@ public class Matrix<Element: Value> : Equatable, CustomStringConvertible {
         self.elements = ValueArray(count: rows * columns, repeatedValue: repeatedValue)
     }
     
+    /// Construct a Matrix of `rows` by `columns` with elements initialized by initializer
+    public init(rows: Int, columns: Int, initializer: () -> Element) {
+        self.rows = rows
+        self.columns = columns
+        self.elements = ValueArray(count: rows * columns, initializer: initializer)
+    }
+    
     /// Construct a Matrix from an array of rows
     public convenience init(_ contents: [[Element]]) {
         let rows = contents.count

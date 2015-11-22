@@ -76,6 +76,11 @@ public class Tensor<Element: Value> : Equatable {
         self.elements = ValueArray(count: dimensions.reduce(1, combine: *), repeatedValue: repeatedValue)
     }
 
+    public init(dimensions: [Int], initializer: () -> Element) {
+        self.dimensions = dimensions
+        self.elements = ValueArray(count: dimensions.reduce(1, combine: *), initializer: initializer)
+    }
+    
     public subscript(indices: Int...) -> Element {
         get {
             return self[indices]

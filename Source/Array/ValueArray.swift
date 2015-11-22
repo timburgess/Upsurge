@@ -55,6 +55,17 @@ public class ValueArray<Element: Value> : ContiguousMutableMemory, MutableCollec
         self.capacity = count
         self.count = count
     }
+    
+    /// Construct an uninitialized ValueArray with the given size and initializer
+    public required init(count: Int, initializer: () -> Element) {
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(count)
+        self.capacity = count
+        self.count = count
+        
+        for i in 0..<count {
+            self[i] = initializer()
+        }
+    }
 
     /// Construct a ValueArray from an array literal
     public required init(arrayLiteral elements: Element...) {
