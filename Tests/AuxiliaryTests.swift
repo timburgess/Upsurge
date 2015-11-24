@@ -45,4 +45,12 @@ class AuxiliaryTests: XCTestCase {
 
         XCTAssertEqual(actual, expected)
     }
+
+    func testThreshold() {
+      let signs = RealArray((0..<n).map {$0 % 2 == 0 ? 1.0 : -1.0})
+
+      let clip = threshold(signs, low: 0.0)
+
+      XCTAssertEqual(min(clip), 0.0)
+    }
 }
