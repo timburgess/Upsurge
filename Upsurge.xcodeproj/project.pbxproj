@@ -33,8 +33,6 @@
 		616832BE1BFE6AED00C4DC6D /* ValueArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A11BFE6AED00C4DC6D /* ValueArray.swift */; };
 		616832BF1BFE6AED00C4DC6D /* ValueArraySlice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A21BFE6AED00C4DC6D /* ValueArraySlice.swift */; };
 		616832C01BFE6AED00C4DC6D /* ValueArraySlice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A21BFE6AED00C4DC6D /* ValueArraySlice.swift */; };
-		616832C11BFE6AED00C4DC6D /* ContiguousMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A41BFE6AED00C4DC6D /* ContiguousMemory.swift */; };
-		616832C21BFE6AED00C4DC6D /* ContiguousMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A41BFE6AED00C4DC6D /* ContiguousMemory.swift */; };
 		616832C31BFE6AED00C4DC6D /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A51BFE6AED00C4DC6D /* Interval.swift */; };
 		616832C41BFE6AED00C4DC6D /* Interval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A51BFE6AED00C4DC6D /* Interval.swift */; };
 		616832C51BFE6AED00C4DC6D /* Real.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832A61BFE6AED00C4DC6D /* Real.swift */; };
@@ -75,6 +73,16 @@
 		616832E81BFE6AED00C4DC6D /* Trigonometric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616832BC1BFE6AED00C4DC6D /* Trigonometric.swift */; };
 		616A35CE1BE2DA97004F974A /* ComplexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616A35CD1BE2DA97004F974A /* ComplexTests.swift */; };
 		616A35CF1BE2DA97004F974A /* ComplexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616A35CD1BE2DA97004F974A /* ComplexTests.swift */; };
+		61F5B7D11BFFF0DD0017B4F2 /* QuadraticType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D01BFFF0DD0017B4F2 /* QuadraticType.swift */; };
+		61F5B7D21BFFF0DD0017B4F2 /* QuadraticType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D01BFFF0DD0017B4F2 /* QuadraticType.swift */; };
+		61F5B7D41BFFF13A0017B4F2 /* LinearType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D31BFFF13A0017B4F2 /* LinearType.swift */; };
+		61F5B7D51BFFF13A0017B4F2 /* LinearType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D31BFFF13A0017B4F2 /* LinearType.swift */; };
+		61F5B7D71C00F5930017B4F2 /* QuadraticReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D61C00F5930017B4F2 /* QuadraticReference.swift */; };
+		61F5B7D81C00F5930017B4F2 /* QuadraticReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D61C00F5930017B4F2 /* QuadraticReference.swift */; };
+		61F5B7DA1C00F6BD0017B4F2 /* LinearReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D91C00F6BD0017B4F2 /* LinearReference.swift */; };
+		61F5B7DB1C00F6BD0017B4F2 /* LinearReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7D91C00F6BD0017B4F2 /* LinearReference.swift */; };
+		61F5B7DD1C0103C70017B4F2 /* LinearOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7DC1C0103C70017B4F2 /* LinearOperators.swift */; };
+		61F5B7DE1C0103C70017B4F2 /* LinearOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F5B7DC1C0103C70017B4F2 /* LinearOperators.swift */; };
 		8CF208101BF6AA8300473B46 /* TensorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF2080D1BF6A8AC00473B46 /* TensorTests.swift */; };
 		8CF208111BF6AA8300473B46 /* TensorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF2080D1BF6A8AC00473B46 /* TensorTests.swift */; };
 		8CF208131BF8005E00473B46 /* SpanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF208121BF8005E00473B46 /* SpanTests.swift */; };
@@ -117,7 +125,6 @@
 		614ACAD31BD1CBF300A1C13E /* UpsurgeTests iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "UpsurgeTests iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		616832A11BFE6AED00C4DC6D /* ValueArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueArray.swift; sourceTree = "<group>"; };
 		616832A21BFE6AED00C4DC6D /* ValueArraySlice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueArraySlice.swift; sourceTree = "<group>"; };
-		616832A41BFE6AED00C4DC6D /* ContiguousMemory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContiguousMemory.swift; sourceTree = "<group>"; };
 		616832A51BFE6AED00C4DC6D /* Interval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Interval.swift; sourceTree = "<group>"; };
 		616832A61BFE6AED00C4DC6D /* Real.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Real.swift; sourceTree = "<group>"; };
 		616832A71BFE6AED00C4DC6D /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
@@ -138,6 +145,11 @@
 		616832BB1BFE6AED00C4DC6D /* Hyperbolic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hyperbolic.swift; sourceTree = "<group>"; };
 		616832BC1BFE6AED00C4DC6D /* Trigonometric.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trigonometric.swift; sourceTree = "<group>"; };
 		616A35CD1BE2DA97004F974A /* ComplexTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComplexTests.swift; sourceTree = "<group>"; };
+		61F5B7D01BFFF0DD0017B4F2 /* QuadraticType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuadraticType.swift; sourceTree = "<group>"; };
+		61F5B7D31BFFF13A0017B4F2 /* LinearType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinearType.swift; sourceTree = "<group>"; };
+		61F5B7D61C00F5930017B4F2 /* QuadraticReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuadraticReference.swift; sourceTree = "<group>"; };
+		61F5B7D91C00F6BD0017B4F2 /* LinearReference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinearReference.swift; sourceTree = "<group>"; };
+		61F5B7DC1C0103C70017B4F2 /* LinearOperators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinearOperators.swift; sourceTree = "<group>"; };
 		8CF2080D1BF6A8AC00473B46 /* TensorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TensorTests.swift; sourceTree = "<group>"; };
 		8CF208121BF8005E00473B46 /* SpanTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpanTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -202,9 +214,9 @@
 			children = (
 				616832A31BFE6AED00C4DC6D /* Types */,
 				616832B71BFE6AED00C4DC6D /* Operations */,
-				616832A01BFE6AED00C4DC6D /* Array */,
-				616832A81BFE6AED00C4DC6D /* Matrix */,
-				616832AB1BFE6AED00C4DC6D /* Tensor */,
+				616832A01BFE6AED00C4DC6D /* 1D */,
+				616832A81BFE6AED00C4DC6D /* 2D */,
+				616832AB1BFE6AED00C4DC6D /* ND */,
 				616832AF1BFE6AED00C4DC6D /* DSP */,
 				616832B21BFE6AED00C4DC6D /* Complex */,
 				614ACA9A1BD1CBB200A1C13E /* Upsurge.h */,
@@ -240,19 +252,21 @@
 			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		616832A01BFE6AED00C4DC6D /* Array */ = {
+		616832A01BFE6AED00C4DC6D /* 1D */ = {
 			isa = PBXGroup;
 			children = (
+				61F5B7D31BFFF13A0017B4F2 /* LinearType.swift */,
+				61F5B7D91C00F6BD0017B4F2 /* LinearReference.swift */,
+				61F5B7DC1C0103C70017B4F2 /* LinearOperators.swift */,
 				616832A11BFE6AED00C4DC6D /* ValueArray.swift */,
 				616832A21BFE6AED00C4DC6D /* ValueArraySlice.swift */,
 			);
-			path = Array;
+			path = 1D;
 			sourceTree = "<group>";
 		};
 		616832A31BFE6AED00C4DC6D /* Types */ = {
 			isa = PBXGroup;
 			children = (
-				616832A41BFE6AED00C4DC6D /* ContiguousMemory.swift */,
 				616832A51BFE6AED00C4DC6D /* Interval.swift */,
 				616832A61BFE6AED00C4DC6D /* Real.swift */,
 				616832A71BFE6AED00C4DC6D /* Value.swift */,
@@ -260,23 +274,25 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
-		616832A81BFE6AED00C4DC6D /* Matrix */ = {
+		616832A81BFE6AED00C4DC6D /* 2D */ = {
 			isa = PBXGroup;
 			children = (
+				61F5B7D01BFFF0DD0017B4F2 /* QuadraticType.swift */,
+				61F5B7D61C00F5930017B4F2 /* QuadraticReference.swift */,
 				616832A91BFE6AED00C4DC6D /* Matrix.swift */,
 				616832AA1BFE6AED00C4DC6D /* MatrixArithmetic.swift */,
 			);
-			path = Matrix;
+			path = 2D;
 			sourceTree = "<group>";
 		};
-		616832AB1BFE6AED00C4DC6D /* Tensor */ = {
+		616832AB1BFE6AED00C4DC6D /* ND */ = {
 			isa = PBXGroup;
 			children = (
 				616832AC1BFE6AED00C4DC6D /* Span.swift */,
 				616832AD1BFE6AED00C4DC6D /* Tensor.swift */,
 				616832AE1BFE6AED00C4DC6D /* TensorSlice.swift */,
 			);
-			path = Tensor;
+			path = ND;
 			sourceTree = "<group>";
 		};
 		616832AF1BFE6AED00C4DC6D /* DSP */ = {
@@ -487,6 +503,7 @@
 				616832DD1BFE6AED00C4DC6D /* ComplexArrayRealSlice.swift in Sources */,
 				616832CF1BFE6AED00C4DC6D /* Tensor.swift in Sources */,
 				616832CB1BFE6AED00C4DC6D /* MatrixArithmetic.swift in Sources */,
+				61F5B7DA1C00F6BD0017B4F2 /* LinearReference.swift in Sources */,
 				616832C91BFE6AED00C4DC6D /* Matrix.swift in Sources */,
 				616832D31BFE6AED00C4DC6D /* DSP.swift in Sources */,
 				616832E11BFE6AED00C4DC6D /* Auxiliary.swift in Sources */,
@@ -497,13 +514,16 @@
 				616832C31BFE6AED00C4DC6D /* Interval.swift in Sources */,
 				616832DF1BFE6AED00C4DC6D /* Arithmetic.swift in Sources */,
 				616832D11BFE6AED00C4DC6D /* TensorSlice.swift in Sources */,
+				61F5B7D71C00F5930017B4F2 /* QuadraticReference.swift in Sources */,
+				61F5B7D41BFFF13A0017B4F2 /* LinearType.swift in Sources */,
 				616832D91BFE6AED00C4DC6D /* ComplexArithmetic.swift in Sources */,
 				616832CD1BFE6AED00C4DC6D /* Span.swift in Sources */,
 				616832E51BFE6AED00C4DC6D /* Hyperbolic.swift in Sources */,
 				616832C51BFE6AED00C4DC6D /* Real.swift in Sources */,
 				616832D71BFE6AED00C4DC6D /* Complex.swift in Sources */,
 				616832D51BFE6AED00C4DC6D /* FFT.swift in Sources */,
-				616832C11BFE6AED00C4DC6D /* ContiguousMemory.swift in Sources */,
+				61F5B7DD1C0103C70017B4F2 /* LinearOperators.swift in Sources */,
+				61F5B7D11BFFF0DD0017B4F2 /* QuadraticType.swift in Sources */,
 				616832C71BFE6AED00C4DC6D /* Value.swift in Sources */,
 				616832E31BFE6AED00C4DC6D /* Exponential.swift in Sources */,
 			);
@@ -535,6 +555,7 @@
 				616832DE1BFE6AED00C4DC6D /* ComplexArrayRealSlice.swift in Sources */,
 				616832D01BFE6AED00C4DC6D /* Tensor.swift in Sources */,
 				616832CC1BFE6AED00C4DC6D /* MatrixArithmetic.swift in Sources */,
+				61F5B7DB1C00F6BD0017B4F2 /* LinearReference.swift in Sources */,
 				616832CA1BFE6AED00C4DC6D /* Matrix.swift in Sources */,
 				616832D41BFE6AED00C4DC6D /* DSP.swift in Sources */,
 				616832E21BFE6AED00C4DC6D /* Auxiliary.swift in Sources */,
@@ -545,13 +566,16 @@
 				616832C41BFE6AED00C4DC6D /* Interval.swift in Sources */,
 				616832E01BFE6AED00C4DC6D /* Arithmetic.swift in Sources */,
 				616832D21BFE6AED00C4DC6D /* TensorSlice.swift in Sources */,
+				61F5B7D81C00F5930017B4F2 /* QuadraticReference.swift in Sources */,
+				61F5B7D51BFFF13A0017B4F2 /* LinearType.swift in Sources */,
 				616832DA1BFE6AED00C4DC6D /* ComplexArithmetic.swift in Sources */,
 				616832CE1BFE6AED00C4DC6D /* Span.swift in Sources */,
 				616832E61BFE6AED00C4DC6D /* Hyperbolic.swift in Sources */,
 				616832C61BFE6AED00C4DC6D /* Real.swift in Sources */,
 				616832D81BFE6AED00C4DC6D /* Complex.swift in Sources */,
 				616832D61BFE6AED00C4DC6D /* FFT.swift in Sources */,
-				616832C21BFE6AED00C4DC6D /* ContiguousMemory.swift in Sources */,
+				61F5B7DE1C0103C70017B4F2 /* LinearOperators.swift in Sources */,
+				61F5B7D21BFFF0DD0017B4F2 /* QuadraticType.swift in Sources */,
 				616832C81BFE6AED00C4DC6D /* Value.swift in Sources */,
 				616832E41BFE6AED00C4DC6D /* Exponential.swift in Sources */,
 			);

@@ -24,7 +24,7 @@ import Accelerate
     Convolution between a signal and a kernel. The signal should have at least as many elements as the kernel. The
     result will have `N - M + 1` elements where `N` is the size of the signal and `M` is the size of the kernel.
 */
-public func convolution<MS: ContiguousMemory, MK: ContiguousMemory where MS.Element == Double, MK.Element == Double>(signal: MS, _ kernel: MK) -> ValueArray<Double> {
+public func convolution<MS: LinearType, MK: LinearType where MS.Element == Double, MK.Element == Double>(signal: MS, _ kernel: MK) -> ValueArray<Double> {
     precondition(signal.count >= kernel.count, "The signal should have at least as many elements as the kernel")
 
     let kernelLast = kernel.pointer + kernel.count - 1
@@ -38,7 +38,7 @@ public func convolution<MS: ContiguousMemory, MK: ContiguousMemory where MS.Elem
     Correlation between two vectors. The first vector should have at least as many elements as the second. The result
     will have `N - M + 1` elements where `N` is the size of the first vector and `M` is the size of the second.
 */
-public func correlation<ML: ContiguousMemory, MR: ContiguousMemory where ML.Element == Double, MR.Element == Double>(lhs: ML, _ rhs: MR) -> ValueArray<Double> {
+public func correlation<ML: LinearType, MR: LinearType where ML.Element == Double, MR.Element == Double>(lhs: ML, _ rhs: MR) -> ValueArray<Double> {
     precondition(lhs.count >= rhs.count, "The first vector should have at least as many elements as the second")
 
     let resultSize = lhs.count - rhs.count + 1
@@ -55,7 +55,7 @@ public func correlation<ML: ContiguousMemory, MR: ContiguousMemory where ML.Elem
     - parameter x: The signal
     - parameter maxLag: The maximum lag to use.
 */
-public func autocorrelation<M: ContiguousMemory where M.Element == Double>(x: M, maxLag: Int) -> ValueArray<Double> {
+public func autocorrelation<M: LinearType where M.Element == Double>(x: M, maxLag: Int) -> ValueArray<Double> {
     precondition(maxLag < x.count)
 
     let signalSize = x.count + maxLag

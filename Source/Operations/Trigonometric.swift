@@ -21,7 +21,7 @@
 import Accelerate
 
 /// Sine-Cosine
-public func sincos<M: ContiguousMemory where M.Element == Double>(x: M) -> (sin: ValueArray<Double>, cos: ValueArray<Double>) {
+public func sincos<M: LinearType where M.Element == Double>(x: M) -> (sin: ValueArray<Double>, cos: ValueArray<Double>) {
     precondition(x.step == 1, "sincos doesn't support step values other than 1")
 
     let sin = ValueArray<Double>(count: x.count)
@@ -32,7 +32,7 @@ public func sincos<M: ContiguousMemory where M.Element == Double>(x: M) -> (sin:
 }
 
 /// Sine
-public func sin<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func sin<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "sin doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -42,7 +42,7 @@ public func sin<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArr
 }
 
 /// Cosine
-public func cos<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func cos<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "cos doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -52,7 +52,7 @@ public func cos<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArr
 }
 
 /// Tangent
-public func tan<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func tan<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "tan doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -62,7 +62,7 @@ public func tan<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArr
 }
 
 /// Arcsine
-public func asin<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func asin<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "asin doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -72,7 +72,7 @@ public func asin<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueAr
 }
 
 /// Arccosine
-public func acos<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func acos<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "acos doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -82,7 +82,7 @@ public func acos<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueAr
 }
 
 /// Arctangent
-public func atan<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func atan<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "atan doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -94,7 +94,7 @@ public func atan<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueAr
 // MARK: -
 
 /// Radians to Degrees
-func rad2deg<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+func rad2deg<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "rad2deg doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -105,7 +105,7 @@ func rad2deg<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<
 }
 
 /// Degrees to Radians
-func deg2rad<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+func deg2rad<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "deg2rad doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)

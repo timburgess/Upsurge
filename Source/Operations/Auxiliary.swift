@@ -21,14 +21,14 @@
 import Accelerate
 
 /// Absolute Value
-public func abs<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func abs<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     let results = ValueArray<Double>(count: x.count)
     vDSP_vabsD(x.pointer + x.startIndex, x.step, results.mutablePointer + results.startIndex, results.step, vDSP_Length(x.count))
     return results
 }
 
 /// Ceiling
-public func ceil<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func ceil<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "ceil doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvceil(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, [Int32(x.count)])
@@ -36,14 +36,14 @@ public func ceil<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueAr
 }
 
 /// Clip
-public func clip<M: ContiguousMemory where M.Element == Double>(x: M, low: Double, high: Double) -> ValueArray<Double> {
+public func clip<M: LinearType where M.Element == Double>(x: M, low: Double, high: Double) -> ValueArray<Double> {
     var results = ValueArray<Double>(count: x.count), y = low, z = high
     vDSP_vclipD(x.pointer + x.startIndex, x.step, &y, &z, results.mutablePointer + results.startIndex, results.step, vDSP_Length(x.count))
     return results
 }
 
 // Copy Sign
-public func copysign<M: ContiguousMemory where M.Element == Double>(sign: M, magnitude: M) -> ValueArray<Double> {
+public func copysign<M: LinearType where M.Element == Double>(sign: M, magnitude: M) -> ValueArray<Double> {
     precondition(sign.step == 1 && magnitude.step == 1, "copysign doesn't support step values other than 1")
     let results = ValueArray<Double>(count: sign.count)
     vvcopysign(results.mutablePointer + results.startIndex, magnitude.pointer + magnitude.startIndex, sign.pointer + sign.startIndex, [Int32(sign.count)])
@@ -51,7 +51,7 @@ public func copysign<M: ContiguousMemory where M.Element == Double>(sign: M, mag
 }
 
 /// Floor
-public func floor<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func floor<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "floor doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvfloor(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, [Int32(x.count)])
@@ -59,7 +59,7 @@ public func floor<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueA
 }
 
 /// Negate
-public func neg<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func neg<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     let results = ValueArray<Double>(count: x.count)
     vDSP_vnegD(x.pointer + x.startIndex, x.step, results.mutablePointer + results.startIndex, results.step, vDSP_Length(x.count))
 
@@ -67,7 +67,7 @@ public func neg<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArr
 }
 
 /// Reciprocal
-public func rec<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func rec<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "rec doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvrec(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, [Int32(x.count)])
@@ -75,7 +75,7 @@ public func rec<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArr
 }
 
 /// Round
-public func round<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func round<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "round doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvnint(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, [Int32(x.count)])
@@ -83,14 +83,14 @@ public func round<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueA
 }
 
 /// Threshold
-public func threshold<M: ContiguousMemory where M.Element == Double>(x: M, low: Double) -> ValueArray<Double> {
+public func threshold<M: LinearType where M.Element == Double>(x: M, low: Double) -> ValueArray<Double> {
     var results = ValueArray<Double>(count: x.count), y = low
     vDSP_vthrD(x.pointer + x.startIndex, x.step, &y, results.mutablePointer + results.startIndex, results.step, vDSP_Length(x.count))
     return results
 }
 
 /// Truncate
-public func trunc<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueArray<Double> {
+public func trunc<M: LinearType where M.Element == Double>(x: M) -> ValueArray<Double> {
     precondition(x.step == 1, "trunc doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvint(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, [Int32(x.count)])
@@ -98,7 +98,7 @@ public func trunc<M: ContiguousMemory where M.Element == Double>(x: M) -> ValueA
 }
 
 /// Power
-public func pow<M: ContiguousMemory where M.Element == Double>(x: M, y: M) -> ValueArray<Double> {
+public func pow<M: LinearType where M.Element == Double>(x: M, y: M) -> ValueArray<Double> {
     precondition(x.step == 1, "pow doesn't support step values other than 1")
     let results = ValueArray<Double>(count: x.count)
     vvpow(results.mutablePointer + results.startIndex, x.pointer + x.startIndex, y.pointer + y.startIndex, [Int32(x.count)])

@@ -21,7 +21,7 @@
 import Accelerate
 
 /// Hyperbolic Sine
-public func sinh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func sinh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "sinh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -31,7 +31,7 @@ public func sinh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueAr
 }
 
 /// Hyperbolic Cosine
-public func cosh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func cosh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "cosh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -41,7 +41,7 @@ public func cosh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueAr
 }
 
 /// Hyperbolic Tangent
-public func tanh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func tanh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "tanh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -51,7 +51,7 @@ public func tanh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueAr
 }
 
 /// Inverse Hyperbolic Sine
-public func asinh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func asinh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "asinh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -61,7 +61,7 @@ public func asinh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueA
 }
 
 /// Inverse Hyperbolic Cosine
-public func acosh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func acosh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "acosh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)
@@ -71,7 +71,7 @@ public func acosh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueA
 }
 
 /// Inverse Hyperbolic Tangent
-public func atanh<C: ContiguousMemory where C.Element == Double>(x: C) -> ValueArray<Double> {
+public func atanh<C: LinearType where C.Element == Double>(x: C) -> ValueArray<Double> {
     precondition(x.step == 1, "atanh doesn't support step values other than 1")
 
     let results = ValueArray<Double>(count: x.count)

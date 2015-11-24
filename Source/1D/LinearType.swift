@@ -18,9 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-/// The `ContiguousMemory` protocol should be implemented by any collection that stores its values in a contiguous memory block. This is the building block for operations that are single-instruction, multiple-data (SIMD).
-public protocol ContiguousMemory : CollectionType {
+/// The `LinearType` protocol should be implemented by any collection that stores its values in a contiguous memory block. This is the building block for one-dimensional operations that are single-instruction, multiple-data (SIMD).
+public protocol LinearType : CollectionType {
     typealias Element
+
+    /// The pointer to the beginning of the memory block
+    var pointer: UnsafePointer<Element> { get }
 
     /// The index of the first valid element
     var startIndex: Int { get }
@@ -30,29 +33,21 @@ public protocol ContiguousMemory : CollectionType {
 
     /// The step size between valid elements
     var step: Int { get }
-
-    /// The pointer to the beginning of the memory block
-    var pointer: UnsafePointer<Element> { get }
 }
 
-public extension ContiguousMemory {
-    /// The size of the memory block between startIndex and endIndex, **not** taking into account the step size.
-    public var length: Int {
-        return endIndex - startIndex
-    }
-
+public extension LinearType {
     /// The number of valid element in the memory block, taking into account the step size.
     public var count: Int {
         return (endIndex - startIndex + step - 1) / step
     }
 }
 
-public protocol ContiguousMutableMemory : ContiguousMemory, MutableCollectionType {
+public protocol MutableLinearType : LinearType, MutableCollectionType {
     /// The mutable pointer to the beginning of the memory block
     var mutablePointer: UnsafeMutablePointer<Element> { get }
 }
 
-extension Array : ContiguousMemory {
+extension Array : LinearType {
     public var step: Int {
         return 1
     }

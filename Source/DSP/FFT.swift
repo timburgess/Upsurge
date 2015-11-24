@@ -41,7 +41,7 @@ public class FFT {
     }
 
     /// Performs a real to complex forward FFT
-    public func forward<M: ContiguousMemory where M.Element == Double>(input: M) -> ComplexArray {
+    public func forward<M: LinearType where M.Element == Double>(input: M) -> ComplexArray {
         let lengthLog2 = vDSP_Length(log2(Double(input.count)))
         let length = vDSP_Length(exp2(Real(lengthLog2)))
         precondition(length <= maxLength, "Input should have at most \(maxLength) elements")
@@ -62,7 +62,7 @@ public class FFT {
     }
 
     /// Performs a real to real forward FFT by taking the square magnitudes of the complex result
-    public func forwardMags<M: ContiguousMemory where M.Element == Double>(input: M) -> ValueArray<Double> {
+    public func forwardMags<M: LinearType where M.Element == Double>(input: M) -> ValueArray<Double> {
         let lengthLog2 = vDSP_Length(log2(Double(input.count)))
         let length = vDSP_Length(exp2(Real(lengthLog2)))
         precondition(length <= maxLength, "Input should have at most \(maxLength) elements")

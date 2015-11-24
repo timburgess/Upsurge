@@ -18,24 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiteralConvertible, Equatable  {
+/// A `ValueArray` is similar to an `Array` but it's a `class` instead of a `struct` and it has a fixed size. As opposed to an `Array`, assigning a `ValueArray` to a new variable will not create a copy, it only creates a new reference. If any reference is modified all other references will reflect the change. To copy a `ValueArray` you have to explicitly call `copy()`.
+public class ValueArray<Element: Value> : MutableLinearType, MutableCollectionType, ArrayLiteralConvertible, Equatable, CustomStringConvertible {
     public typealias Index = Int
-    public typealias Element = Complex
 
-    var elements: ValueArray<Complex>
-
-    public var count: Int {
-        get {
-            return elements.count
-        }
-        set {
-            elements.count = newValue
-        }
-    }
-
-    public var capacity: Int {
-        return elements.capacity
-    }
+    public internal(set) var mutablePointer: UnsafeMutablePointer<Element>
+    public internal(set) var capacity: Int
+    public var count: Int
 
     public var startIndex: Index {
         return 0
@@ -50,65 +39,53 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
     }
 
     public var pointer: UnsafePointer<Element> {
-        return elements.pointer
+        return UnsafePointer<Element>(mutablePointer)
     }
 
-    public var mutablePointer: UnsafeMutablePointer<Element> {
-        return elements.mutablePointer
-    }
-
-    public var reals: ComplexArrayRealSlice {
-        get {
-            return ComplexArrayRealSlice(base: elements, startIndex: startIndex, endIndex: 2*endIndex - 1, step: 2)
-        }
-        set {
-            precondition(newValue.count == reals.count)
-            for var i = 0; i < newValue.count; i += 1 {
-                self.reals[i] = newValue[i]
-            }
-        }
-    }
-
-    public var imags: ComplexArrayRealSlice {
-        get {
-            return ComplexArrayRealSlice(base: elements, startIndex: startIndex + 1, endIndex: 2*endIndex, step: 2)
-        }
-        set {
-            precondition(newValue.count == imags.count)
-            for var i = 0; i < newValue.count; i += 1 {
-                self.imags[i] = newValue[i]
-            }
-        }
-    }
-
-    public func generate() -> IndexingGenerator<ComplexArray> {
-        return IndexingGenerator(self)
-    }
-
-    /// Construct an uninitialized ComplexArray with the given capacity
+    /// Construct an uninitialized ValueArray with the given capacity
     public required init(capacity: Int) {
-        elements = ValueArray<Complex>(capacity: capacity)
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(capacity)
+        self.capacity = capacity
+        self.count = 0
     }
 
-    /// Construct an uninitialized ComplexArray with the given size
+    /// Construct an uninitialized ValueArray with the given size
     public required init(count: Int) {
-        elements = ValueArray<Complex>(count: count)
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(count)
+        self.capacity = count
+        self.count = count
     }
 
-    /// Construct a ComplexArray from an array literal
+    /// Construct a ValueArray from an array literal
     public required init(arrayLiteral elements: Element...) {
-        self.elements = ValueArray<Complex>(count: elements.count)
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(elements.count)
+        self.capacity = elements.count
+        self.count = elements.count
         mutablePointer.initializeFrom(elements)
     }
 
-    /// Construct a ComplexArray from contiguous memory
+    /// Construct a ValueArray from contiguous memory
     public required init<C : LinearType where C.Element == Element>(_ values: C) {
-        elements = ValueArray<Complex>(values)
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(values.count)
+        capacity = values.count
+        count = values.count
+        for var i = 0; i < count; i += 1 {
+            mutablePointer[i] = values.pointer[values.startIndex + i * step]
+        }
     }
 
-    /// Construct a ComplexArray of `count` elements, each initialized to `repeatedValue`.
+    /// Construct a ValueArray of `count` elements, each initialized to `repeatedValue`.
     public required init(count: Int, repeatedValue: Element) {
-        elements = ValueArray<Complex>(count: count, repeatedValue: repeatedValue)
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(count)
+        capacity = count
+        self.count = count
+        for i in 0..<count {
+            self[i] = repeatedValue
+        }
+    }
+
+    deinit {
+        mutablePointer.dealloc(capacity)
     }
 
     public subscript(index: Index) -> Element {
@@ -124,8 +101,19 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
         }
     }
 
-    public func copy() -> ComplexArray {
-        let copy = ComplexArray(count: capacity)
+    public subscript(range: Swift.Range<Int>) -> ValueArraySlice<Element> {
+        get {
+            return ValueArraySlice<Element>(base: self, startIndex: range.startIndex, endIndex: range.endIndex, step: step)
+        }
+        set {
+            for i in range {
+                self[i] = newValue[i - range.startIndex]
+            }
+        }
+    }
+
+    public func copy() -> ValueArray {
+        let copy = ValueArray(count: capacity)
         copy.mutablePointer.initializeFrom(mutablePointer, count: count)
         return copy
     }
@@ -147,17 +135,35 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
         assert(subRange.startIndex >= startIndex && subRange.endIndex <= endIndex)
         (mutablePointer + subRange.startIndex).initializeFrom(newElements)
     }
-
+    
     public func toRowMatrix() -> Matrix<Element> {
         return Matrix(rows: 1, columns: count, elements: self)
     }
-
+    
     public func toColumnMatrix() -> Matrix<Element> {
         return Matrix(rows: count, columns: 1, elements: self)
     }
+    
+    public var description: String {
+        var string = "["
+        for v in self {
+            string += "\(v.description), "
+        }
+        if string.startIndex.distanceTo(string.endIndex) > 1 {
+            let range = string.endIndex.advancedBy(-2)..<string.endIndex
+            string.replaceRange(range, with: "]")
+        } else {
+            string += "]"
+        }
+        return string
+    }
+
+    public var debugDescription: String {
+        return description
+    }
 }
 
-public func ==(lhs: ComplexArray, rhs: ComplexArray) -> Bool {
+public func ==<T>(lhs: ValueArray<T>, rhs: ValueArray<T>) -> Bool {
     if lhs.count != rhs.count {
         return false
     }
@@ -168,4 +174,10 @@ public func ==(lhs: ComplexArray, rhs: ComplexArray) -> Bool {
         }
     }
     return true
+}
+
+public func swap<T>(inout lhs: ValueArray<T>, inout rhs: ValueArray<T>) {
+    swap(&lhs.mutablePointer, &rhs.mutablePointer)
+    swap(&lhs.capacity, &rhs.capacity)
+    swap(&lhs.count, &rhs.count)
 }
