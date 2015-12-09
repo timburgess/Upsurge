@@ -74,7 +74,7 @@ public struct TensorSlice<Element: Value> : Equatable {
         }
     }
     
-    public subscript(slice: [Interval]) -> TensorSlice<Element> {
+    public subscript(slice: [IntervalType]) -> TensorSlice<Element> {
         get {
             let span = Span(dimensions: dimensions, intervals: slice)
             assert(spanIsValid(span))
@@ -91,7 +91,7 @@ public struct TensorSlice<Element: Value> : Equatable {
         }
     }
     
-    public subscript(slice: Interval...) -> TensorSlice<Element> {
+    public subscript(slice: IntervalType...) -> TensorSlice<Element> {
         get {
             return self[slice]
         }

@@ -18,8 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+public protocol IntervalType {
+    var start: Int? { get }
+    var end: Int? { get }
+}
 
-public enum Interval : IntegerLiteralConvertible {
+public enum Interval: IntervalType, IntegerLiteralConvertible {
     case All
     case Range(Swift.Range<Int>)
     
@@ -30,13 +34,38 @@ public enum Interval : IntegerLiteralConvertible {
     public init(integerLiteral value: Int) {
         self = Interval.Range(value...value)
     }
+
+    public var start: Int? {
+        switch self {
+        case .All: return nil
+        case .Range(let range): return range.startIndex
+        }
+    }
+
+    public var end: Int? {
+        switch self {
+        case .All: return nil
+        case .Range(let range): return range.endIndex
+        }
+    }
 }
 
-public func ...(min: Int, max: Int) -> Interval {
-    return Interval(range: min..<max + 1)
+extension Range: IntervalType {
+    public var start: Int? {
+        return startIndex as? Int
+    }
+
+    public var end: Int? {
+        return endIndex as? Int
+    }
 }
 
-public func ..<(min: Int, upper: Int) -> Interval {
-    return Interval(range: min..<upper)
-}
+extension Int: IntervalType {
+    public var start: Int? {
+        return self
+    }
 
+    public var end: Int? {
+        return self + 1
+    }
+}

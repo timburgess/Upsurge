@@ -50,16 +50,13 @@ struct Span : ArrayLiteralConvertible, SequenceType {
         self.init(ranges: elements)
     }
     
-    init(dimensions: [Int], intervals: [Interval]) {
+    init(dimensions: [Int], intervals: [IntervalType]) {
         assert(intervalIsValid(dimensions, intervals: intervals))
         var ranges = [Element]()
         for (dimension, interval) in zip(dimensions, intervals) {
-            switch interval {
-            case .All:
-                ranges.append(0..<dimension)
-            case .Range(let range):
-                ranges.append(range)
-            }
+            let start = interval.start ?? 0
+            let end = interval.end ?? dimension
+            ranges.append(start..<end)
         }
         self.init(ranges: ranges)
     }
@@ -140,16 +137,13 @@ func ≅(lhs: Span, rhs: Span) -> Bool {
 
 // MARK: - Dimensional Validity
 
-func intervalIsValid(dimensions: [Int], intervals: [Interval]) -> Bool {
+func intervalIsValid(dimensions: [Int], intervals: [IntervalType]) -> Bool {
     assert(intervals.count == dimensions.count)
     for (i, interval) in intervals.enumerate() {
-        switch interval {
-        case .All:
-            continue
-        case .Range(let range):
-            if range.startIndex < 0 && dimensions[i] <= range.endIndex {
-                return false
-            }
+        let start = interval.start ?? 0
+        let end = interval.end ?? dimensions[i]
+        if start < 0 || end > dimensions[i] {
+            return false
         }
     }
     return true
