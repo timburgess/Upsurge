@@ -76,4 +76,14 @@ class RealArrayTests: XCTestCase {
         XCTAssertEqual(n[0], 1.0)
         XCTAssertEqual(n[1], 2.0)
     }
+
+    func testSlice() {
+        let array = RealArray((0..<10).map({ Double($0) }))
+        let slice = array[5...8]
+
+        XCTAssertEqual(slice.count, 4)
+        XCTAssertEqual(slice.startIndex, 5)
+        XCTAssertEqual(slice.endIndex, 9)
+        XCTAssertEqual([Double](slice), [5.0, 6.0, 7.0, 8.0])
+    }
 }

@@ -44,12 +44,12 @@ public struct ValueArraySlice<Element: Value> : ContiguousMutableMemory, Mutable
 
     public subscript(index: Int) -> Element {
         get {
-            let baseIndex = startIndex + index * step
+            let baseIndex = startIndex + (index - startIndex) * step
             precondition(0 <= baseIndex && baseIndex < base.count)
             return pointer[baseIndex]
         }
         set {
-            let baseIndex = startIndex + index * step
+            let baseIndex = startIndex + (index - startIndex) * step
             precondition(0 <= baseIndex && baseIndex < base.count)
             mutablePointer[baseIndex] = newValue
         }
