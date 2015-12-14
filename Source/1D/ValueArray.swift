@@ -84,6 +84,16 @@ public class ValueArray<Element: Value>: MutableLinearType, ArrayLiteralConverti
             self[i] = repeatedValue
         }
     }
+    
+    /// Construct a ValueArray of `count` elements, each initialized with `initializer`.
+    public required init(count: Int, initializer: () -> Element) {
+        mutablePointer = UnsafeMutablePointer<Element>.alloc(count)
+        capacity = count
+        self.count = count
+        for i in 0..<count {
+            self[i] = initializer()
+        }
+    }
 
     deinit {
         mutablePointer.dealloc(capacity)

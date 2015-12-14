@@ -98,6 +98,13 @@ public class Matrix<Element: Value>: MutableQuadraticType, Equatable, CustomStri
         }
     }
     
+    /// Construct a Matrix from an array of rows
+    public init(rows: Int, columns: Int, initializer: () -> Element) {
+        self.rows = rows
+        self.columns = columns
+        self.elements = ValueArray(count: rows * columns, initializer: initializer)
+    }
+    
     public subscript(indices: Int...) -> Element {
         get {
             return self[indices]
