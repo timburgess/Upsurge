@@ -18,32 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+import Foundation
 
-public class TensorSlice<Element: Value> : MutableTensorType, Equatable {
-    public typealias Index = [Int]
-    public typealias Slice = TensorSlice<Element>
+
+public class MatrixSlice<Element: Value>: MutableQuadraticType, CustomStringConvertible, Equatable {
+    public typealias Index = (Int, Int)
+    public typealias Slice = MatrixSlice<Element>
     
-    var base: Tensor<Element>
-    public let dimensions: [Int]
-    public var count: Int {
-        return dimensions.reduce(1, combine: *)
-    }
+    public var rows: Int
+    public var columns: Int
     
+    public var base: Matrix<Element>
     var span: Span
-
+    
     public var pointer: UnsafePointer<Element> {
-        return base.pointer
+        return base.pointer + linearIndex(span.startIndex)
     }
     
     public var mutablePointer: UnsafeMutablePointer<Element> {
-        return base.mutablePointer
+        return base.mutablePointer + linearIndex(span.startIndex)
     }
     
-    init(base: Tensor<Element>, span: Span) {
-        assert(span.dimensions.count == base.dimensions.count)
+    public var arrangement: QuadraticArrangement {
+        return .RowMajor
+    }
+    
+    public var stride: Int {
+        return base.dimensions[1]
+    }
+    
+    public var step: Int {
+        return base.elements.step
+    }
+
+    init(base: Matrix<Element>, span: Span) {
+        assert(Span(zeroTo: base.dimensions).contains(span))
         self.base = base
         self.span = span
-        self.dimensions = span.dimensions
+        
+        rows = span.dimensions[0]
+        columns = span.dimensions[1]
     }
     
     public subscript(indices: Int...) -> Element {
@@ -55,77 +69,49 @@ public class TensorSlice<Element: Value> : MutableTensorType, Equatable {
         }
     }
     
-    public subscript(indices: Index) -> Element {
+    public subscript(indices: [Int]) -> Element {
         get {
-            var index = span.startIndex
-            let indexReplacementRage: Range<Int> = span.startIndex.count - indices.count..<span.startIndex.count
-            index.replaceRange(indexReplacementRage, with: indices)
-            assert(indexIsValid(index))
-            return base[index]
+            assert(indices.count == 2)
+            return base[indices]
         }
         set {
-            var index = span.startIndex
-            let indexReplacementRage: Range<Int> = span.startIndex.count - indices.count..<span.startIndex.count
-            index.replaceRange(indexReplacementRage, with: indices)
-            assert(indexIsValid(index))
-            base[index] = newValue
+            assert(indices.count == 2)
+            base[indices] = newValue
         }
     }
     
-    public subscript(slice: [IntervalType]) -> Slice {
+    private subscript(span: Span) -> Slice {
         get {
-            let span = Span(base: self.span, intervals: slice)
-            return TensorSlice(base: base, span: span)
+            assert(self.span.contains(span))
+            return MatrixSlice(base: base, span: span)
         }
         set {
-            let span = Span(base: self.span, intervals: slice)
-            assert(span ≅ newValue.span)
-            for index in span  {
-                base[index] = newValue[index]
+            assert(self.span.contains(span))
+            assert(self.span ≅ newValue.span)
+            for (lhsIndex, rhsIndex) in zip(span, newValue.span) {
+                self[lhsIndex] = newValue[rhsIndex]
             }
         }
     }
     
-    public subscript(slice: IntervalType...) -> Slice {
+    public subscript(intervals: IntervalType...) -> Slice {
         get {
-            return self[slice]
+            return self[intervals]
         }
         set {
-            self[slice] = newValue
+            self[intervals] = newValue
         }
     }
     
-    subscript(span: Span) -> Slice {
+    public subscript(intervals: [IntervalType]) -> Slice {
         get {
-            assert(self.span.contains(span))
-            return TensorSlice(base: base, span: span)
+            let span = Span(base: self.span, intervals: intervals)
+            return self[span]
         }
         set {
-            assert(self.span.contains(span))
-            assert(span ≅ newValue.span)
-            for (lhsIndex, rhsIndex) in zip(span, newValue.span)  {
-                base[lhsIndex] = newValue[rhsIndex]
-            }
+            let span = Span(base: self.span, intervals: intervals)
+            self[span] = newValue
         }
-    }
-    
-    public var isContiguous: Bool {
-        let onesCount: Int
-        if let index = dimensions.indexOf({ $0 != 1 }) {
-            onesCount = index
-        } else {
-            onesCount = rank
-        }
-        
-        let diff = (0..<rank).map({ dimensions[$0] - base.dimensions[$0] }).reverse()
-        let fullCount: Int
-        if let index = diff.indexOf({ $0 != 0 }) where index.base < count {
-            fullCount = diff.startIndex.distanceTo(index)
-        } else {
-            fullCount = rank
-        }
-        
-        return rank - fullCount - onesCount <= 1
     }
     
     public func indexIsValid(indices: [Int]) -> Bool {
@@ -137,11 +123,34 @@ public class TensorSlice<Element: Value> : MutableTensorType, Equatable {
         }
         return true
     }
+    
+    public var description: String {
+        var description = ""
+        
+        for i in 0..<rows {
+            let contents = (0..<columns).map{"\(self[Interval(integerLiteral: span.startIndex[0] + i), Interval(integerLiteral: span.startIndex[1] + $0)])"}.joinWithSeparator("\t")
+            
+            switch (i, rows) {
+            case (0, 1):
+                description += "(\t\(contents)\t)"
+            case (0, _):
+                description += "⎛\t\(contents)\t⎞"
+            case (rows - 1, _):
+                description += "⎝\t\(contents)\t⎠"
+            default:
+                description += "⎜\t\(contents)\t⎥"
+            }
+            
+            description += "\n"
+        }
+        
+        return description
+    }
 }
 
 // MARK: - Equatable
 
-public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: TensorSlice<T>) -> Bool {
+public func ==<T>(lhs: MatrixSlice<T>, rhs: Matrix<T>) -> Bool {
     assert(lhs.span ≅ rhs.span)
     for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
         if lhs[lhsIndex] != rhs[rhsIndex] {
@@ -151,7 +160,7 @@ public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: TensorSlice<T>) -> Bool {
     return true
 }
 
-public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: Tensor<T>) -> Bool {
+public func ==<T>(lhs: MatrixSlice<T>, rhs: MatrixSlice<T>) -> Bool {
     assert(lhs.span ≅ rhs.span)
     for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
         if lhs[lhsIndex] != rhs[rhsIndex] {
@@ -161,7 +170,7 @@ public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: Tensor<T>) -> Bool {
     return true
 }
 
-public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: Matrix<T>) -> Bool {
+public func ==<T>(lhs: MatrixSlice<T>, rhs: Tensor<T>) -> Bool {
     assert(lhs.span ≅ rhs.span)
     for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
         if lhs[lhsIndex] != rhs[rhsIndex] {
@@ -171,7 +180,7 @@ public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: Matrix<T>) -> Bool {
     return true
 }
 
-public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: MatrixSlice<T>) -> Bool {
+public func ==<T>(lhs: MatrixSlice<T>, rhs: TensorSlice<T>) -> Bool {
     assert(lhs.span ≅ rhs.span)
     for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
         if lhs[lhsIndex] != rhs[rhsIndex] {
@@ -181,7 +190,7 @@ public func ==<T: Equatable>(lhs: TensorSlice<T>, rhs: MatrixSlice<T>) -> Bool {
     return true
 }
 
-public func ==<T>(lhs: TensorSlice<T>, rhs: TwoDimensionalTensorSlice<T>) -> Bool {
+public func ==<T>(lhs: MatrixSlice<T>, rhs: TwoDimensionalTensorSlice<T>) -> Bool {
     assert(lhs.span ≅ rhs.span)
     for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
         if lhs[lhsIndex] != rhs[rhsIndex] {
@@ -190,3 +199,4 @@ public func ==<T>(lhs: TensorSlice<T>, rhs: TwoDimensionalTensorSlice<T>) -> Boo
     }
     return true
 }
+

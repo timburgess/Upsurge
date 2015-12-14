@@ -20,12 +20,17 @@
 
 import Accelerate
 
-public class Matrix<Element: Value> : MutableQuadraticType, Equatable, CustomStringConvertible {
+public class Matrix<Element: Value>: MutableQuadraticType, Equatable, CustomStringConvertible {
     public typealias Index = (Int, Int)
+    public typealias Slice = MatrixSlice<Element>
     
     public var rows: Int
     public var columns: Int
     public var elements: ValueArray<Element>
+    
+    var span: Span {
+        return Span(zeroTo: dimensions)
+    }
     
     public var pointer: UnsafePointer<Element> {
         return elements.pointer
@@ -35,12 +40,16 @@ public class Matrix<Element: Value> : MutableQuadraticType, Equatable, CustomStr
         return elements.mutablePointer
     }
 
-    public var arragement: QuadraticArrangement {
+    public var arrangement: QuadraticArrangement {
         return .RowMajor
     }
 
     public var stride: Int {
         return columns
+    }
+    
+    public var step: Int {
+        return elements.step
     }
 
     /// Construct a Matrix from a `QuadraticType`
@@ -88,15 +97,58 @@ public class Matrix<Element: Value> : MutableQuadraticType, Equatable, CustomStr
             elements.replaceRange(i*cols..<i*cols+min(cols, row.count), with: row)
         }
     }
-
-    public subscript(row: Int, column: Int) -> Element {
+    
+    public subscript(indices: Int...) -> Element {
         get {
-            assert(indexIsValidForRow(row, column: column))
-            return elements[(row * columns) + column]
+            return self[indices]
         }
         set {
-            assert(indexIsValidForRow(row, column: column))
-            elements[(row * columns) + column] = newValue
+            self[indices] = newValue
+        }
+    }
+    
+    public subscript(indices: [Int]) -> Element {
+        get {
+            assert(indices.count == 2)
+            assert(indexIsValidForRow(indices[0], column: indices[1]))
+            return elements[(indices[0] * columns) + indices[1]]
+        }
+        set {
+            assert(indices.count == 2)
+            assert(indexIsValidForRow(indices[0], column: indices[1]))
+            elements[(indices[0] * columns) + indices[1]] = newValue
+        }
+    }
+    
+    public subscript(intervals: IntervalType...) -> Slice {
+        get {
+            return self[intervals]
+        }
+        set {
+            self[intervals] = newValue
+        }
+    }
+    
+    public subscript(intervals: [IntervalType]) -> Slice {
+        get {
+            let span = Span(dimensions: dimensions, intervals: intervals)
+            return self[span]
+        }
+        set {
+            let span = Span(dimensions: dimensions, intervals: intervals)
+            self[span] = newValue
+        }
+    }
+    
+    subscript(span: Span) -> Slice {
+        get {
+            return MatrixSlice(base: self, span: span)
+        }
+        set {
+            assert(span ≅ newValue.span)
+            for (lhsIndex, rhsIndex) in zip(span, newValue.span) {
+                self[lhsIndex] = newValue[rhsIndex]
+            }
         }
     }
 
@@ -113,7 +165,7 @@ public class Matrix<Element: Value> : MutableQuadraticType, Equatable, CustomStr
         return Matrix(rows: rows, columns: columns, elements: copy)
     }
 
-    private func indexIsValidForRow(row: Int, column: Int) -> Bool {
+    public func indexIsValidForRow(row: Int, column: Int) -> Bool {
         return row >= 0 && row < rows && column >= 0 && column < columns
     }
     
@@ -141,30 +193,44 @@ public class Matrix<Element: Value> : MutableQuadraticType, Equatable, CustomStr
     }
 }
 
-// MARK: - SequenceType
-
-extension Matrix: SequenceType {
-    public func generate() -> AnyGenerator<MutableSlice<ValueArray<Element>>> {
-        let endIndex = rows * columns
-        var nextRowStartIndex = 0
-
-        return anyGenerator {
-            if nextRowStartIndex == endIndex {
-                return nil
-            }
-
-            let currentRowStartIndex = nextRowStartIndex
-            nextRowStartIndex += self.columns
-
-            return self.elements[currentRowStartIndex..<nextRowStartIndex]
-        }
-    }
-}
-
 // MARK: - Equatable
 
 public func ==<T>(lhs: Matrix<T>, rhs: Matrix<T>) -> Bool {
     return lhs.elements == rhs.elements
+}
+
+public func ==<T>(lhs: Matrix<T>, rhs: MatrixSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
+}
+
+public func ==<T>(lhs: Matrix<T>, rhs: Tensor<T>) -> Bool {
+    return lhs.elements == rhs.elements
+}
+
+public func ==<T>(lhs: Matrix<T>, rhs: TensorSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
+}
+
+public func ==<T>(lhs: Matrix<T>, rhs: TwoDimensionalTensorSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
 }
 
 // MARK: -

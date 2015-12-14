@@ -21,14 +21,12 @@
 import Accelerate
 
 /// A `Tensor` is a multi-dimensional collection of values.
-public class Tensor<Element: Value> : Equatable {
+public class Tensor<Element: Value> : MutableTensorType, Equatable {
     public typealias Index = [Int]
+    public typealias Slice = TensorSlice<Element>
 
     public var dimensions: [Int]
     public var elements: ValueArray<Element>
-    public var count: Int {
-        return dimensions.reduce(1, combine: *)
-    }
 
     public var pointer: UnsafePointer<Element> {
         return elements.pointer
@@ -36,6 +34,10 @@ public class Tensor<Element: Value> : Equatable {
 
     public var mutablePointer: UnsafeMutablePointer<Element> {
         return elements.mutablePointer
+    }
+    
+    var span: Span {
+        return Span(zeroTo: dimensions)
     }
 
     public init<M: LinearType where M.Element == Element>(dimensions: [Int], elements: M) {
@@ -84,19 +86,22 @@ public class Tensor<Element: Value> : Equatable {
         get {
             var index = [Int](count: dimensions.count, repeatedValue: 0)
             let indexReplacementRage: Range<Int> = dimensions.count - indices.count..<dimensions.count
-            index.replaceRange(indexReplacementRage, with: zip(index[indexReplacementRage], indices).map{ $0 + $1 })
+            index.replaceRange(indexReplacementRage, with: indices)
             assert(indexIsValid(index))
             let elementsIndex = linearIndex(index)
             return elements[elementsIndex]
         }
         set {
-            assert(indexIsValid(indices))
-            let index = linearIndex(indices)
-            elements[index] = newValue
+            var index = [Int](count: dimensions.count, repeatedValue: 0)
+            let indexReplacementRage: Range<Int> = dimensions.count - indices.count..<dimensions.count
+            index.replaceRange(indexReplacementRage, with: indices)
+            assert(indexIsValid(index))
+            let elementsIndex = linearIndex(index)
+            elements[elementsIndex] = newValue
         }
     }
 
-    public subscript(slice: Interval...) -> TensorSlice<Element> {
+    public subscript(slice: IntervalType...) -> TensorSlice<Element> {
         get {
             return self[slice]
         }
@@ -105,14 +110,14 @@ public class Tensor<Element: Value> : Equatable {
         }
     }
 
-    public subscript(slice: [Interval]) -> TensorSlice<Element> {
+    public subscript(slice: [IntervalType]) -> TensorSlice<Element> {
         get {
-            let span = Span(dimensions: dimensions, intervals: slice)
-            return self[span]
+            let subSpan = Span(base: span, intervals: slice)
+            return self[subSpan]
         }
         set {
-            let span = Span(dimensions: dimensions, intervals: slice)
-            self[span] = newValue
+            let subSpan = Span(base: span, intervals: slice)
+            self[subSpan] = newValue
         }
     }
 
@@ -124,9 +129,8 @@ public class Tensor<Element: Value> : Equatable {
         set {
             assert(spanIsValid(span))
             assert(span ≅ newValue.span)
-            var tensorSlice = TensorSlice(base: self, span: span)
-            let index = Span(zeroTo: tensorSlice.dimensions)
-            tensorSlice[index] = newValue
+            let tensorSlice = TensorSlice(base: self, span: span)
+            tensorSlice[tensorSlice.span] = newValue
         }
     }
     
@@ -135,80 +139,34 @@ public class Tensor<Element: Value> : Equatable {
         self.dimensions = dimensions
     }
 
-    func extractMatrix(span: Span) -> Matrix<Element> {
-        assert(spanIsValid(span))
-        span.ranges[0..<span.dimensions.count - 2].forEach{ assert($0.count == 1) }
-        if span[span.dimensions.count - 2].count != 1 {
-            assert(span.ranges.last!.count == dimensions.last!)
-        }
-
-        let rows = span[span.dimensions.count - 2].count
-        let columns = span[span.dimensions.count - 1].count
-
-        let pointerOffset = linearIndex(span.startIndex)
-        let count = span.count
-
-        return Matrix(rows: rows, columns: columns, elements: elements[pointerOffset..<pointerOffset + count])
-    }
-
-    /**
-     Extract a matrix from the tensor.
-
-     - Precondition: All but the last two intervals must be a specific index, not a range. If the second-last element is a range, the last element must span the full dimension.
-     */
-    public func extractMatrix(intervals: Interval...) -> Matrix<Element> {
-        let span = Span(dimensions: dimensions, intervals: intervals)
-        return extractMatrix(span)
-    }
-
     public func copy() -> Tensor {
         return Tensor(self)
     }
-
-    private func linearIndex(indices: Index) -> Int {
-        assert(indexIsValid(indices))
-        var index = indices[0]
-        for (i, dim) in dimensions[1..<dimensions.count].enumerate() {
-            index = (dim * index) + indices[i+1]
-        }
-        return index
-    }
-
-    public func indexIsValid(indices: Index) -> Bool {
-        assert(indices.count == dimensions.count)
-        for (i, index) in indices.enumerate() {
-            if index < 0 && dimensions[i] <= index {
-                return false
-            }
-        }
-        return true
-    }
-
-    func spanIsValid(span: Span) -> Bool {
-        assert(span.dimensions.count == dimensions.count)
-        for (i, range) in span.enumerate() {
-            if range.startIndex < 0 && dimensions[i] <= range.endIndex {
-                return false
-            }
-        }
-        return true
+    
+    func spanIsValid(subSpan: Span) -> Bool {
+        let span = Span(zeroTo: dimensions)
+        return span.contains(subSpan)
     }
 }
 
-// MARK: - Equatable
+// MARK: - Matrix Extraction
 
-public func ==<T: Equatable>(lhs: Tensor<T>, rhs: Tensor<T>) -> Bool {
-    return lhs.elements == rhs.elements
-}
+extension Tensor {
+    /**
+     Extract a matrix from the tensor.
+     
+     - Precondition: All but the last two intervals must be a specific index, not a range. The last interval must either span the full dimension, or the second-last interval count must be 1.
+     */
+    func asMatrix(span: Span) -> TwoDimensionalTensorSlice<Element> {
+        return TwoDimensionalTensorSlice(base: self, span: span)
+    }
+    
+    public func asMatrix(intervals: IntervalType...) -> TwoDimensionalTensorSlice<Element> {
+        let baseSpan = Span(zeroTo: dimensions)
+        let matrixSpan = Span(base: baseSpan, intervals: intervals)
+        return asMatrix(matrixSpan)
+    }
 
-public func ==<T: Equatable>(lhs: Tensor<T>, rhs: Matrix<T>) -> Bool {
-    assert(Span(zeroTo: lhs.dimensions) ≅ Span(zeroTo: [rhs.rows, rhs.columns]))
-    return lhs.elements == rhs.elements
-}
-
-public func ==<T: Equatable>(lhs: Matrix<T>, rhs: Tensor<T>) -> Bool {
-    assert(Span(zeroTo: rhs.dimensions) ≅ Span(zeroTo: [lhs.rows, lhs.columns]))
-    return lhs.elements == rhs.elements
 }
 
 // MARK: -
@@ -216,4 +174,44 @@ public func ==<T: Equatable>(lhs: Matrix<T>, rhs: Tensor<T>) -> Bool {
 public func swap<T>(lhs: Tensor<T>, rhs: Tensor<T>) {
     swap(&lhs.dimensions, &rhs.dimensions)
     swap(&lhs.elements, &rhs.elements)
+}
+
+// MARK: - Equatable
+
+public func ==<T>(lhs: Tensor<T>, rhs: Tensor<T>) -> Bool {
+    return lhs.elements == rhs.elements
+}
+
+public func ==<T>(lhs: Tensor<T>, rhs: TensorSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
+}
+
+public func ==<T>(lhs: Tensor<T>, rhs: Matrix<T>) -> Bool {
+    return lhs.elements == rhs.elements
+}
+
+public func ==<T>(lhs: Tensor<T>, rhs: MatrixSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
+}
+
+public func ==<T>(lhs: Tensor<T>, rhs: TwoDimensionalTensorSlice<T>) -> Bool {
+    assert(lhs.span ≅ rhs.span)
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
 }
