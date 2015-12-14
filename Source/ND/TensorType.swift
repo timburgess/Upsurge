@@ -18,52 +18,61 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public enum QuadraticArrangement {
-    /// Consecutive elements in a rows are contiguous in memory
-    case RowMajor
-
-    /// Consecutive elements in a column are contiguous in memory
-    case ColumnMajor
-}
-
-public protocol QuadraticType: TensorType {
+public protocol TensorType {
     typealias Element
-
-    /// The arrangement of rows and columns
-    var arrangement: QuadraticArrangement { get }
-
+    typealias Slice
+    
     /// The pointer to the beginning of the memory block
     var pointer: UnsafePointer<Element> { get }
     
-    /// The number of rows
-    var rows: Int { get }
-
-    /// The number of columns
-    var columns: Int { get }
-
-    /// The step size between major-axis elements
-    var stride: Int { get }
+    /// The count of each dimension
+    var dimensions: [Int] { get }
     
-    /// The step of the base elements
-    var step: Int { get }
+    subscript(intervals: [IntervalType]) -> Slice { get }
+    subscript(intervals: [Int]) -> Element { get }
 }
 
-public extension QuadraticType {
+internal extension TensorType {
+    var span: Span {
+        return Span(zeroTo: dimensions)
+    }
+}
+
+public extension TensorType {
     /// The number of valid element in the memory block, taking into account the step size.
     public var count: Int {
-        return rows * columns
+        return dimensions.reduce(1, combine: *)
     }
     
-    public var dimensions: [Int] {
-        if arrangement == .RowMajor {
-            return [rows, columns]
-        } else {
-            return [columns, rows]
+    /// The number of dimensions
+    public var rank: Int {
+        return dimensions.count
+    }
+    
+    public func linearIndex(indices: [Int]) -> Int {
+        assert(indexIsValid(indices))
+        var index = indices[0]
+        for (i, dim) in dimensions[1..<dimensions.count].enumerate() {
+            index = (dim * index) + indices[i+1]
         }
+        return index
+    }
+    
+    public func indexIsValid(indices: [Int]) -> Bool {
+        assert(indices.count == dimensions.count)
+        for (i, index) in indices.enumerate() {
+            if index < span[i].startIndex || span[i].endIndex <= index {
+                return false
+            }
+        }
+        return true
     }
 }
 
-public protocol MutableQuadraticType: QuadraticType, MutableTensorType {
+public protocol MutableTensorType: TensorType {
     /// The mutable pointer to the beginning of the memory block
     var mutablePointer: UnsafeMutablePointer<Element> { get }
+    
+    subscript(intervals: [IntervalType]) -> Slice { get set }
+    subscript(intervals: [Int]) -> Element { get set }
 }

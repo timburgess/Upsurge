@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 /// The `LinearType` protocol should be implemented by any collection that stores its values in a contiguous memory block. This is the building block for one-dimensional operations that are single-instruction, multiple-data (SIMD).
-public protocol LinearType : CollectionType {
+public protocol LinearType: TensorType {
     typealias Element
 
     /// The pointer to the beginning of the memory block
@@ -40,18 +40,60 @@ public extension LinearType {
     public var count: Int {
         return (endIndex - startIndex + step - 1) / step
     }
+    
+    public var dimensions: [Int] {
+        return [count]
+    }
 }
 
-public protocol MutableLinearType : LinearType, MutableCollectionType {
+internal extension LinearType {
+    var span: Span {
+        return Span(start: [startIndex], end: [endIndex])
+    }
+    
+    func indexIsValid(index: Int) -> Bool {
+        return startIndex <= index && index < endIndex
+    }
+}
+
+public protocol MutableLinearType : LinearType, MutableTensorType {
     /// The mutable pointer to the beginning of the memory block
     var mutablePointer: UnsafeMutablePointer<Element> { get }
 }
 
 extension Array : LinearType {
+    public typealias Slice = ArraySlice<Element>
+    
     public var step: Int {
         return 1
     }
-
+    
+    public subscript(indices: [Int]) -> Element {
+        get {
+            assert(indices.count == 1)
+            return self[indices[0]]
+        }
+        set {
+            assert(indices.count == 1)
+            self[indices[0]] = newValue
+        }
+    }
+    
+    public subscript(intervals: [IntervalType]) -> Slice {
+        get {
+            assert(indices.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            return self[start..<end]
+        }
+        set {
+            assert(indices.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            self[start..<end] = newValue
+        }
+    }
+    
     public var pointer: UnsafePointer<Element> {
         return withUnsafeBufferPointer{ return $0.baseAddress }
     }
