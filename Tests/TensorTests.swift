@@ -40,14 +40,14 @@ class TensorTests: XCTestCase {
     }
     
     func testSliceAndSubscript() {
-        let slice1 = diagonalTensor3D[3, 2...3, 2...3]
-        let slice2 = diagonalTensor4D[1, 1, Interval.All, Interval.All]
-        let slice3 = diagonalTensor4D.extractMatrix(1, 1, 0...1, 0...1)
+        let slice1 = diagonalTensor3D[3...3, 2...3, 2...3]
+        let slice2 = diagonalTensor4D[1...1, 1...1, Interval.All, Interval.All]
+        let slice3 = diagonalTensor4D.asMatrix(1...1, 1...1, 0...1, 0...1)
 
         XCTAssertEqual(slice1, slice2)
         XCTAssert(slice1 == slice3)
         XCTAssert(slice3 == slice2)
-        XCTAssertEqual(slice1[0, 1, 1], 1)
+        XCTAssertEqual(slice1[3, 3, 3], 1)
     }
     
     func testSliceAndValueAssignment() {
@@ -58,35 +58,35 @@ class TensorTests: XCTestCase {
     }
     
     func testSliceValueAssignment() {
-        let tensor = Tensor(dimensions: [2, 2, 2, 2], elements: [6.4, 2.4, 8.6, 0.2, 6.4, 1.5, 7.3, 1.1, 6.0, 1.4, 7.8, 9.2, 4.2, 6.1, 8.7, 3.6])
-        diagonalTensor4D[1, Interval.All, 0...1, 0...1] = tensor[0, 0...1, Interval.All, 0...1]
+        let tensor = Tensor(dimensions: [2, 2, 2, 2], elements: [6.4, 2.4, 8.6, 0.2, 6.4, 1.5, 7.3, 1.1, 6.0, 1.4, 7.8, 9.2, 4.2, 6.1, 8.7, 3.6] as RealArray)
+        diagonalTensor4D[Interval(integerLiteral: 1), Interval.All, Interval(range: 0...1), Interval(range: 0...1)] = tensor[Interval(integerLiteral: 0), Interval(range: 0...1), Interval.All, Interval(range: 0...1)]
 
-        let expected = Tensor(dimensions: [2, 2, 2, 2], elements: [1, 0, 0, 0, 0, 0, 0, 0, 6.4, 2.4, 8.6, 0.2, 6.4, 1.5, 7.3, 1.1])
+        let expected = Tensor(dimensions: [2, 2, 2, 2], elements: [1, 0, 0, 0, 0, 0, 0, 0, 6.4, 2.4, 8.6, 0.2, 6.4, 1.5, 7.3, 1.1] as RealArray)
         XCTAssertEqual(diagonalTensor4D, expected)
     }
     
     func testMatrixExtraction() {
-        var matrix = diagonalTensor4D.extractMatrix(1, 1, 0...1, 0...1)
+        var matrix = diagonalTensor4D.asMatrix(Interval(integerLiteral: 1), Interval(integerLiteral: 1), Interval(range: 0...1), Interval(range: 0...1))
         var expected = RealMatrix([[0, 0], [0, 1]])
-        XCTAssertEqual(matrix, expected)
+        XCTAssert(matrix == expected)
         
-        matrix = diagonalTensor4D.extractMatrix(0, 0, 0, 0)
+        matrix = diagonalTensor4D.asMatrix(Interval(integerLiteral: 0), Interval(integerLiteral: 0), Interval(integerLiteral: 0), Interval(integerLiteral: 0))
         expected = RealMatrix([[1]])
-        XCTAssertEqual(matrix, expected)
+        XCTAssert(matrix == expected)
     }
     
     func testContinuity() {
         XCTAssert(diagonalTensor3D[1...4, Interval.All, Interval.All].isContiguous)
-        XCTAssert(diagonalTensor3D[4, 2, 1...2].isContiguous)
-        XCTAssert(diagonalTensor3D[1, 4, Interval.All].isContiguous)
-        XCTAssert(diagonalTensor3D[1, Interval.All, Interval.All].isContiguous)
-        XCTAssert(diagonalTensor3D[1, 2...3, Interval.All].isContiguous)
+        XCTAssert(diagonalTensor3D[4...4, 2...2, 1...2].isContiguous)
+        XCTAssert(diagonalTensor3D[1...1, 4...4, Interval.All].isContiguous)
+        XCTAssert(diagonalTensor3D[1...1, Interval.All, Interval.All].isContiguous)
+        XCTAssert(diagonalTensor3D[1...1, 2...3, Interval.All].isContiguous)
     }
     
     func testNoContinuity() {
-        XCTAssertFalse(diagonalTensor3D[1...2, 3...4, 1].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[1...2, 3...4, 1...1].isContiguous)
         XCTAssertFalse(diagonalTensor3D[Interval.All, 3...4, Interval.All].isContiguous)
-        XCTAssertFalse(diagonalTensor3D[1, Interval.All, 1].isContiguous)
-        XCTAssertFalse(diagonalTensor3D[Interval.All, 1, 1].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[1...1, Interval.All, 1...1].isContiguous)
+        XCTAssertFalse(diagonalTensor3D[Interval.All, 1...1, 1...1].isContiguous)
     }
 }

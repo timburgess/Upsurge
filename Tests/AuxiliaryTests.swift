@@ -26,7 +26,7 @@ class AuxiliaryTests: XCTestCase {
     let n = 10000
 
     func testCopysign() {
-        let signs = RealArray((0..<n).map {$0 % 2 == 0 ? 1.0 : -1.0})
+        let signs = RealArray((0..<n).map({ $0 % 2 == 0 ? 1.0 : -1.0 }))
 
         let magnitudes = RealArray(count: n)
         for i in 0..<n {
@@ -34,8 +34,8 @@ class AuxiliaryTests: XCTestCase {
         }
 
         let expected = RealArray(count: n)
-        for (i, (sign, magnitude)) in Zip2Sequence(signs, magnitudes).enumerate() {
-            expected[i] = sign * abs(magnitude)
+        for i in 0..<signs.count {
+            expected[i] = signs[i] * abs(magnitudes[i])
         }
 
         var actual: RealArray = []

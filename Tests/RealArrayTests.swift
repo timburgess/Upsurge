@@ -58,7 +58,7 @@ class RealArrayTests: XCTestCase {
     }
 
     func testAddSlice() {
-        let a: RealArray = [1, 2, 3, 4]
+        let a: RealArray = [1.0, 2.0, 3.0, 4.0]
         let b = a[0...1] + a[2...3]
 
         XCTAssertEqual(b.count, 2)
@@ -84,6 +84,6 @@ class RealArrayTests: XCTestCase {
         XCTAssertEqual(slice.count, 4)
         XCTAssertEqual(slice.startIndex, 5)
         XCTAssertEqual(slice.endIndex, 9)
-        XCTAssertEqual([Double](slice), [5.0, 6.0, 7.0, 8.0])
+        XCTAssert(slice == RealArray([5.0, 6.0, 7.0, 8.0]))
     }
 }

@@ -50,8 +50,8 @@ class ArithmeticTests: XCTestCase {
         let array = RealArray(values)
 
         var expected = Real()
-        for v in array {
-            expected += v
+        for i in array.startIndex..<array.endIndex {
+            expected += array[i]
         }
 
         var actual: Real = 0.0
@@ -79,8 +79,8 @@ class ArithmeticTests: XCTestCase {
         let a2: RealArray = [3.0, 2.0, 1.0, 0.0, -1.0]
         let r = a1 + a2
         XCTAssertEqual(r.count, 3)
-        for v in r {
-            XCTAssertEqual(v, 4.0)
+        for i in r.startIndex..<r.endIndex {
+            XCTAssertEqual(r[i], 4.0)
         }
     }
 
@@ -89,8 +89,8 @@ class ArithmeticTests: XCTestCase {
       let a2: RealArray = [4.0, 3.0, 2.0, 1.0]
       let r = a1 - a2
       XCTAssertEqual(r.count, 4)
-      for v in r {
-        XCTAssertEqual(v, 1.0)
+      for i in r.startIndex..<r.endIndex {
+        XCTAssertEqual(r[i], 1.0)
       }
     }
 
@@ -99,8 +99,8 @@ class ArithmeticTests: XCTestCase {
       let a2: RealArray = [4.0, 3.0, 2.0, 1.0]
       a1 -= a2
       XCTAssertEqual(a1.count, 4)
-      for v in a1 {
-        XCTAssertEqual(v, 1.0)
+      for i in a1.startIndex..<a1.endIndex {
+        XCTAssertEqual(a1[i], 1.0)
       }
     }
 
@@ -112,8 +112,8 @@ class ArithmeticTests: XCTestCase {
 
         let r = s1 + a2
         XCTAssertEqual(r.count, 3)
-        for v in r {
-            XCTAssertEqual(v, 4.0)
+        for i in r.startIndex..<r.endIndex {
+            XCTAssertEqual(r[i], 4.0)
         }
     }
   

@@ -28,8 +28,8 @@ class ComplexTests: XCTestCase {
         let a: ComplexArray = [Complex(real: 1, imag: 1), Complex(real: 2, imag: 0)]
         let b: ComplexArray = [Complex(real: 2, imag: 2), Complex(real: 1, imag: 3)]
         let r = a + b
-        for c in r {
-            XCTAssertEqual(c, Complex(real: 3, imag: 3))
+        for i in r.startIndex..<r.endIndex {
+            XCTAssertEqual(r[i], Complex(real: 3, imag: 3))
         }
     }
 
@@ -51,9 +51,9 @@ class ComplexTests: XCTestCase {
         })
 
         var expected = Complex()
-        for v in values {
-            expected.real += v.real
-            expected.imag += v.imag
+        for i in 0..<values.count {
+            expected.real += values[i].real
+            expected.imag += values[i].imag
         }
 
         var actual = Complex()
