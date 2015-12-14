@@ -18,25 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-/// A slice of a `ValueArray`. Slices not only specify start and end indexes, they also specify a step size.
-public struct ValueArraySlice<Element: Value> : MutableLinearType, CustomStringConvertible, Equatable {
+public class ComplexArraySlice: MutableLinearType  {
     public typealias Index = Int
-    public typealias Slice = ValueArraySlice<Element>
-
-    var base: ValueArray<Element>
-    public var startIndex: Int
-    public var endIndex: Int
-    public var step: Int
-
+    public typealias Element = Complex
+    public typealias Slice = ComplexArraySlice
+    
+    var base: ComplexArray
+    
+    public var startIndex: Index
+    public var endIndex: Index
+    public var step: Index
+    
     public var pointer: UnsafePointer<Element> {
         return base.pointer
     }
-
+    
     public var mutablePointer: UnsafeMutablePointer<Element> {
         return base.mutablePointer
     }
-
-    public init(base: ValueArray<Element>, startIndex: Int, endIndex: Int, step: Int) {
+    
+    public var reals: ComplexArrayRealSlice {
+        get {
+            return ComplexArrayRealSlice(base: base, startIndex: startIndex, endIndex: 2*endIndex - 1, step: 2)
+        }
+        set {
+            precondition(newValue.count == reals.count)
+            for var i = 0; i < newValue.count; i += 1 {
+                self.reals[i] = newValue[i]
+            }
+        }
+    }
+    
+    public var imags: ComplexArrayRealSlice {
+        get {
+            return ComplexArrayRealSlice(base: base, startIndex: startIndex + 1, endIndex: 2*endIndex, step: 2)
+        }
+        set {
+            precondition(newValue.count == imags.count)
+            for var i = 0; i < newValue.count; i += 1 {
+                self.imags[i] = newValue[i]
+            }
+        }
+    }
+    
+    public required init(base: ComplexArray, startIndex: Index, endIndex: Index, step: Int) {
         assert(base.startIndex <= startIndex && endIndex <= base.endIndex)
         self.base = base
         self.startIndex = startIndex
@@ -46,83 +71,67 @@ public struct ValueArraySlice<Element: Value> : MutableLinearType, CustomStringC
     
     public subscript(index: Index) -> Element {
         get {
-            assert(indexIsValid(index))
-            return pointer[index * step]
+            precondition(0 <= index && index < count)
+            return pointer[index]
         }
         set {
-            assert(indexIsValid(index))
-            mutablePointer[index * step] = newValue
+            precondition(0 <= index && index < count)
+            mutablePointer[index] = newValue
         }
     }
-        
+    
+    public subscript(indices: [Int]) -> Element {
+        get {
+            assert(indices.count == 1)
+            return self[indices[0]]
+        }
+        set {
+            assert(indices.count == 1)
+            self[indices[0]] = newValue
+        }
+    }
+    
     public subscript(intervals: [IntervalType]) -> Slice {
         get {
-            assert(self.span.contains(intervals))
             assert(intervals.count == 1)
             let start = intervals[0].start ?? startIndex
             let end = intervals[0].end ?? endIndex
             return Slice(base: base, startIndex: start, endIndex: end, step: step)
         }
         set {
-            assert(self.span.contains(intervals))
             assert(intervals.count == 1)
             let start = intervals[0].start ?? startIndex
             let end = intervals[0].end ?? endIndex
+            assert(startIndex <= start && end <= endIndex)
             for i in start..<end {
                 self[i] = newValue[i - start]
             }
         }
     }
-    
-    public subscript(intervals: [Int]) -> Element {
-        get {
-            assert(intervals.count == 1)
-            return self[intervals[0]]
-        }
-        set {
-            assert(intervals.count == 1)
-            self[intervals[0]] = newValue
-        }
-    }
-    
-    public var description: String {
-        var string = "["
-        for var i = startIndex; i < endIndex; i += step {
-            let v = base[i]
-            string += "\(v.description), "
-        }
-        if string.startIndex.distanceTo(string.endIndex) > 1 {
-            let range = string.endIndex.advancedBy(-2)..<string.endIndex
-            string.replaceRange(range, with: "]")
-        } else {
-            string += "]"
-        }
-        return string
-    }
 }
 
 // MARK: - Equatable
 
-public func ==<T>(lhs: ValueArraySlice<T>, rhs: ValueArray<T>) -> Bool {
+public func ==(lhs: ComplexArraySlice, rhs: ComplexArraySlice) -> Bool {
     if lhs.count != rhs.count {
         return false
     }
     
-    for (lhsIndex, rhsIndex) in zip(lhs.startIndex..<lhs.endIndex, 0..<rhs.count) {
-        if lhs[lhsIndex] != rhs[rhsIndex] {
+    for i in lhs.startIndex..<lhs.endIndex {
+        if lhs[i] != rhs[i] {
             return false
         }
     }
     return true
 }
 
-public func ==<T>(lhs: ValueArraySlice<T>, rhs: ValueArraySlice<T>) -> Bool {
+public func ==(lhs: ComplexArraySlice, rhs: ComplexArray) -> Bool {
     if lhs.count != rhs.count {
         return false
     }
     
-    for (lhsIndex, rhsIndex) in zip(lhs.startIndex..<lhs.endIndex, rhs.startIndex..<rhs.endIndex) {
-        if lhs[lhsIndex] != rhs[rhsIndex] {
+    for i in 0..<lhs.count {
+        if lhs[i] != rhs[i] {
             return false
         }
     }

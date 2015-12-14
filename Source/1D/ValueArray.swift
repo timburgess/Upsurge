@@ -19,8 +19,9 @@
 // THE SOFTWARE.
 
 /// A `ValueArray` is similar to an `Array` but it's a `class` instead of a `struct` and it has a fixed size. As opposed to an `Array`, assigning a `ValueArray` to a new variable will not create a copy, it only creates a new reference. If any reference is modified all other references will reflect the change. To copy a `ValueArray` you have to explicitly call `copy()`.
-public class ValueArray<Element: Value> : MutableLinearType, MutableCollectionType, ArrayLiteralConvertible, Equatable, CustomStringConvertible {
+public class ValueArray<Element: Value> : MutableLinearType, ArrayLiteralConvertible, CustomStringConvertible, Equatable {
     public typealias Index = Int
+    public typealias Slice = ValueArraySlice<Element>
 
     public internal(set) var mutablePointer: UnsafeMutablePointer<Element>
     public internal(set) var capacity: Int
@@ -87,31 +88,56 @@ public class ValueArray<Element: Value> : MutableLinearType, MutableCollectionTy
     deinit {
         mutablePointer.dealloc(capacity)
     }
-
+    
     public subscript(index: Index) -> Element {
         get {
-            precondition(0 <= index && index < capacity)
-            assert(index < count)
-            return pointer[index]
+            assert(indexIsValid(index))
+            return pointer[index * step]
         }
         set {
-            precondition(0 <= index && index < capacity)
-            assert(index < count)
-            mutablePointer[index] = newValue
+            assert(indexIsValid(index))
+            mutablePointer[index * step] = newValue
         }
     }
-
-    public subscript(range: Swift.Range<Int>) -> ValueArraySlice<Element> {
+    
+    public subscript(intervals: [IntervalType]) -> Slice {
         get {
-            return ValueArraySlice<Element>(base: self, startIndex: range.startIndex, endIndex: range.endIndex, step: step)
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            return Slice(base: self, startIndex: start, endIndex: end, step: step)
         }
         set {
-            for i in range {
-                self[i] = newValue[i - range.startIndex]
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            assert(startIndex <= start && end <= endIndex)
+            for i in start..<end {
+                self[i] = newValue[i - start]
             }
         }
     }
-
+    
+    public subscript(intervals: IntervalType...) -> Slice {
+        get {
+            return self[intervals]
+        }
+        set {
+            self[intervals] = newValue
+        }
+    }
+    
+    public subscript(intervals: [Int]) -> Element {
+        get {
+            assert(intervals.count == 1)
+            return self[intervals[0]]
+        }
+        set {
+            assert(intervals.count == 1)
+            self[intervals[0]] = newValue
+        }
+    }
+    
     public func copy() -> ValueArray {
         let copy = ValueArray(count: capacity)
         copy.mutablePointer.initializeFrom(mutablePointer, count: count)
@@ -146,8 +172,8 @@ public class ValueArray<Element: Value> : MutableLinearType, MutableCollectionTy
     
     public var description: String {
         var string = "["
-        for v in self {
-            string += "\(v.description), "
+        for i in startIndex..<endIndex {
+            string += "\(self[i].description), "
         }
         if string.startIndex.distanceTo(string.endIndex) > 1 {
             let range = string.endIndex.advancedBy(-2)..<string.endIndex
@@ -163,11 +189,21 @@ public class ValueArray<Element: Value> : MutableLinearType, MutableCollectionTy
     }
 }
 
+// MARK: -
+
+public func swap<T>(inout lhs: ValueArray<T>, inout rhs: ValueArray<T>) {
+    swap(&lhs.mutablePointer, &rhs.mutablePointer)
+    swap(&lhs.capacity, &rhs.capacity)
+    swap(&lhs.count, &rhs.count)
+}
+
+// MARK: - Equatable
+
 public func ==<T>(lhs: ValueArray<T>, rhs: ValueArray<T>) -> Bool {
     if lhs.count != rhs.count {
         return false
     }
-
+    
     for i in 0..<lhs.count {
         if lhs[i] != rhs[i] {
             return false
@@ -176,8 +212,16 @@ public func ==<T>(lhs: ValueArray<T>, rhs: ValueArray<T>) -> Bool {
     return true
 }
 
-public func swap<T>(inout lhs: ValueArray<T>, inout rhs: ValueArray<T>) {
-    swap(&lhs.mutablePointer, &rhs.mutablePointer)
-    swap(&lhs.capacity, &rhs.capacity)
-    swap(&lhs.count, &rhs.count)
+public func ==<T>(lhs: ValueArray<T>, rhs: ValueArraySlice<T>) -> Bool {
+    if lhs.count != rhs.count {
+        return false
+    }
+    
+    for (lhsIndex, rhsIndex) in zip(0..<lhs.count, rhs.startIndex..<rhs.endIndex) {
+        if lhs[lhsIndex] != rhs[rhsIndex] {
+            return false
+        }
+    }
+    return true
 }
+

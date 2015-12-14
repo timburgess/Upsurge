@@ -19,11 +19,12 @@
 // THE SOFTWARE.
 
 /// A slice of reals from a ComplexArray.
-public struct ComplexArrayRealSlice : MutableLinearType, Equatable {
+public struct ComplexArrayRealSlice : MutableLinearType {
     public typealias Index = Int
     public typealias Element = Real
+    public typealias Slice = ComplexArrayRealSlice
 
-    var base: ValueArray<Complex>
+    var base: ComplexArray
     public var startIndex: Int
     public var endIndex: Int
     public var step: Int
@@ -36,7 +37,8 @@ public struct ComplexArrayRealSlice : MutableLinearType, Equatable {
         return UnsafeMutablePointer<Element>(base.mutablePointer)
     }
 
-    init(base: ValueArray<Complex>, startIndex: Int, endIndex: Int, step: Int) {
+    init(base: ComplexArray, startIndex: Int, endIndex: Int, step: Int) {
+        assert(2 * base.startIndex <= startIndex && endIndex <= 2 * base.endIndex)
         self.base = base
         self.startIndex = startIndex
         self.endIndex = endIndex
@@ -53,6 +55,35 @@ public struct ComplexArrayRealSlice : MutableLinearType, Equatable {
             let baseIndex = startIndex + index * step
             precondition(0 <= baseIndex && baseIndex < base.count)
             mutablePointer[baseIndex] = newValue
+        }
+    }
+    
+    public subscript(indices: [Int]) -> Element {
+        get {
+            assert(indices.count == 1)
+            return self[indices[0]]
+        }
+        set {
+            assert(indices.count == 1)
+            self[indices[0]] = newValue
+        }
+    }
+    
+    public subscript(intervals: [IntervalType]) -> Slice {
+        get {
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            return Slice(base: base, startIndex: start, endIndex: end, step: step)
+        }
+        set {
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            assert(startIndex <= start && end <= endIndex)
+            for i in start..<end {
+                self[i] = newValue[i - start]
+            }
         }
     }
 }

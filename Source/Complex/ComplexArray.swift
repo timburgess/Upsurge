@@ -18,9 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiteralConvertible, Equatable  {
+public class ComplexArray : MutableLinearType, ArrayLiteralConvertible  {
     public typealias Index = Int
     public typealias Element = Complex
+    public typealias Slice = ComplexArraySlice
 
     var elements: ValueArray<Complex>
 
@@ -59,7 +60,7 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
 
     public var reals: ComplexArrayRealSlice {
         get {
-            return ComplexArrayRealSlice(base: elements, startIndex: startIndex, endIndex: 2*endIndex - 1, step: 2)
+            return ComplexArrayRealSlice(base: self, startIndex: startIndex, endIndex: 2*endIndex - 1, step: 2)
         }
         set {
             precondition(newValue.count == reals.count)
@@ -71,7 +72,7 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
 
     public var imags: ComplexArrayRealSlice {
         get {
-            return ComplexArrayRealSlice(base: elements, startIndex: startIndex + 1, endIndex: 2*endIndex, step: 2)
+            return ComplexArrayRealSlice(base: self, startIndex: startIndex + 1, endIndex: 2*endIndex, step: 2)
         }
         set {
             precondition(newValue.count == imags.count)
@@ -79,10 +80,6 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
                 self.imags[i] = newValue[i]
             }
         }
-    }
-
-    public func generate() -> IndexingGenerator<ComplexArray> {
-        return IndexingGenerator(self)
     }
 
     /// Construct an uninitialized ComplexArray with the given capacity
@@ -121,6 +118,35 @@ public class ComplexArray : MutableLinearType, MutableCollectionType, ArrayLiter
             precondition(0 <= index && index < capacity)
             assert(index < count)
             mutablePointer[index] = newValue
+        }
+    }
+    
+    public subscript(indices: [Int]) -> Element {
+        get {
+            assert(indices.count == 1)
+            return self[indices[0]]
+        }
+        set {
+            assert(indices.count == 1)
+            self[indices[0]] = newValue
+        }
+    }
+    
+    public subscript(intervals: [IntervalType]) -> Slice {
+        get {
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            return Slice(base: self, startIndex: start, endIndex: end, step: step)
+        }
+        set {
+            assert(intervals.count == 1)
+            let start = intervals[0].start ?? startIndex
+            let end = intervals[0].end ?? endIndex
+            assert(startIndex <= start && end <= endIndex)
+            for i in start..<end {
+                self[i] = newValue[i - start]
+            }
         }
     }
 
