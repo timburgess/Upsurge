@@ -20,7 +20,7 @@
 
 
 /// Span is a collection of Ranges to specify a multi-dimensional slice of a Tensor.
-struct Span : ArrayLiteralConvertible, SequenceType {
+struct Span: ArrayLiteralConvertible, SequenceType {
     typealias Element = Range<Int>
     
     var ranges: [Element]

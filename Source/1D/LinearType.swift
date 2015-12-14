@@ -56,12 +56,12 @@ internal extension LinearType {
     }
 }
 
-public protocol MutableLinearType : LinearType, MutableTensorType {
+public protocol MutableLinearType: LinearType, MutableTensorType {
     /// The mutable pointer to the beginning of the memory block
     var mutablePointer: UnsafeMutablePointer<Element> { get }
 }
 
-extension Array : LinearType {
+extension Array: LinearType {
     public typealias Slice = ArraySlice<Element>
     
     public var step: Int {

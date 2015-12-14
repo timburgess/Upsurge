@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public class ComplexArray : MutableLinearType, ArrayLiteralConvertible  {
+public class ComplexArray: MutableLinearType, ArrayLiteralConvertible  {
     public typealias Index = Int
     public typealias Element = Complex
     public typealias Slice = ComplexArraySlice

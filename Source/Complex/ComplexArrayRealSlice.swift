@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 /// A slice of reals from a ComplexArray.
-public struct ComplexArrayRealSlice : MutableLinearType {
+public struct ComplexArrayRealSlice: MutableLinearType {
     public typealias Index = Int
     public typealias Element = Real
     public typealias Slice = ComplexArrayRealSlice

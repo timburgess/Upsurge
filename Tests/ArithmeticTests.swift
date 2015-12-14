@@ -95,7 +95,7 @@ class ArithmeticTests: XCTestCase {
     }
 
     func testSubAssign() {
-      var a1: RealArray = [5.0, 4.0, 3.0, 2.0]
+      let a1: RealArray = [5.0, 4.0, 3.0, 2.0]
       let a2: RealArray = [4.0, 3.0, 2.0, 1.0]
       a1 -= a2
       XCTAssertEqual(a1.count, 4)

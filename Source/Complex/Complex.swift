@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-public struct Complex : Value {
+public struct Complex: Value {
     public var real: Real = 0.0
     public var imag: Real = 0.0
 

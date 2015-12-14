@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 
-public class TensorSlice<Element: Value> : MutableTensorType, Equatable {
+public class TensorSlice<Element: Value>: MutableTensorType, Equatable {
     public typealias Index = [Int]
     public typealias Slice = TensorSlice<Element>
     

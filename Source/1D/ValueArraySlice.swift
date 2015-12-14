@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 /// A slice of a `ValueArray`. Slices not only specify start and end indexes, they also specify a step size.
-public struct ValueArraySlice<Element: Value> : MutableLinearType, CustomStringConvertible, Equatable {
+public struct ValueArraySlice<Element: Value>: MutableLinearType, CustomStringConvertible, Equatable {
     public typealias Index = Int
     public typealias Slice = ValueArraySlice<Element>
 

@@ -20,8 +20,7 @@
 
 import Foundation
 
-public protocol Value : Comparable, CustomStringConvertible, Equatable, Hashable  {}
+public protocol Value: AbsoluteValuable, Comparable, CustomStringConvertible, Equatable, Hashable  {}
 
-extension Double : Value {}
-extension Float : Value {}
-extension Int : Value {}
+extension Double: Value {}
+extension Float: Value {}

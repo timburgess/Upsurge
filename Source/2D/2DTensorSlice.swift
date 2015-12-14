@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 
 
-public class TwoDimensionalTensorSlice<Element: Value> : MutableQuadraticType, Equatable {
+public class TwoDimensionalTensorSlice<Element: Value>: MutableQuadraticType, Equatable {
     public typealias Index = [Int]
     public typealias Slice = TwoDimensionalTensorSlice<Element>
     

@@ -21,7 +21,7 @@
 import Accelerate
 
 /// A `Tensor` is a multi-dimensional collection of values.
-public class Tensor<Element: Value> : MutableTensorType, Equatable {
+public class Tensor<Element: Value>: MutableTensorType, Equatable {
     public typealias Index = [Int]
     public typealias Slice = TensorSlice<Element>
 
