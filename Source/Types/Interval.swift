@@ -59,13 +59,3 @@ extension Range: IntervalType {
         return endIndex as? Int
     }
 }
-
-extension Int: IntervalType {
-    public var start: Int? {
-        return self
-    }
-
-    public var end: Int? {
-        return self + 1
-    }
-}

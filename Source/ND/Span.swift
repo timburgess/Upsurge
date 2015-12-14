@@ -49,16 +49,25 @@ struct Span : ArrayLiteralConvertible, SequenceType {
         self.init(ranges: elements)
     }
     
-    init(dimensions: [Int], intervals: [Interval]) {
-        assert(intervalIsValid(dimensions, intervals: intervals))
+    init(base: Span, intervals: [IntervalType]) {
+        assert(base.contains(intervals))
         var ranges = [Element]()
-        for (dimension, interval) in zip(dimensions, intervals) {
-            switch interval {
-            case .All:
-                ranges.append(0..<dimension)
-            case .Range(let range):
-                ranges.append(range)
-            }
+        for i in 0..<intervals.count {
+            let start = intervals[i].start ?? base[i].startIndex
+            let end = intervals[i].end ?? base[i].endIndex
+            assert(base[i].startIndex <= start && end <= base[i].endIndex)
+            ranges.append(start..<end)
+        }
+        self.init(ranges: ranges)
+    }
+    
+    init(dimensions: [Int], intervals: [IntervalType]) {
+        var ranges = [Element]()
+        for i in 0..<intervals.count {
+            let start = intervals[i].start ?? 0
+            let end = intervals[i].end ?? dimensions[i]
+            assert(0 <= start && end < dimensions[i])
+            ranges.append(start..<end)
         }
         self.init(ranges: ranges)
     }
@@ -77,18 +86,33 @@ struct Span : ArrayLiteralConvertible, SequenceType {
         self.init(start: start, end: end)
     }
     
-    init(base: [Int], subSpan: Span) {
-        let start = zip(base, subSpan.startIndex).map{ $0 + $1 }
-        let length = subSpan.ranges.map{ $0.count }
-        self.init(start: start, length: length)
-    }
-    
     func generate() -> SpanGenerator {
         return SpanGenerator(span: self)
     }
     
     subscript(index: Int) -> Element {
         return self.ranges[index]
+    }
+    
+    func contains(other: Span) -> Bool {
+        for i in 0..<dimensions.count {
+            if other[i].startIndex < self[i].startIndex || self[i].endIndex < other[i].endIndex {
+                return false
+            }
+        }
+        return true
+    }
+    
+    func contains(intervals: [IntervalType]) -> Bool {
+        assert(dimensions.count == intervals.count)
+        for i in 0..<dimensions.count {
+            let start = intervals[i].start ?? self[i].startIndex
+            let end = intervals[i].end ?? self[i].endIndex
+            if start < self[i].startIndex || self[i].endIndex < end {
+                return false
+            }
+        }
+        return true
     }
 }
 
@@ -99,7 +123,7 @@ class SpanGenerator: GeneratorType {
     
     init(span: Span) {
         self.span = span
-        self.presentIndex = span.startIndex
+        self.presentIndex = span.startIndex.map{ $0 }
     }
     
     func next() -> [Int]? {
@@ -128,28 +152,11 @@ class SpanGenerator: GeneratorType {
 
 infix operator ≅ { precedence 130 }
 func ≅(lhs: Span, rhs: Span) -> Bool {
-    if lhs.dimensions.count == rhs.dimensions.count {
+    if lhs.dimensions == rhs.dimensions {
         return true
     }
 
     let (max, min) = lhs.dimensions.count > rhs.dimensions.count ? (lhs, rhs) : (rhs, lhs)
     let diff = max.dimensions.count - min.dimensions.count
     return max.dimensions[0..<diff].reduce(1, combine: *) == 1 && Array(max.dimensions[diff..<max.dimensions.count]) == min.dimensions
-}
-
-// MARK: - Dimensional Validity
-
-func intervalIsValid(dimensions: [Int], intervals: [Interval]) -> Bool {
-    assert(intervals.count == dimensions.count)
-    for (i, interval) in intervals.enumerate() {
-        switch interval {
-        case .All:
-            continue
-        case .Range(let range):
-            if range.startIndex < 0 && dimensions[i] <= range.endIndex {
-                return false
-            }
-        }
-    }
-    return true
 }
