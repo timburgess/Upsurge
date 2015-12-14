@@ -34,9 +34,9 @@ public func gemm<
     precondition(a.rows == c.rows, "Output matrix dimensions not compatible with multiplication")
     precondition(b.columns == c.columns, "Output matrix dimensions not compatible with multiplication")
 
-    let order = c.arragement == .RowMajor ? CblasRowMajor : CblasColMajor
-    let atrans = a.arragement == c.arragement ? CblasNoTrans : CblasTrans
-    let btrans = b.arragement == c.arragement ? CblasNoTrans : CblasTrans
+    let order = c.arrangement == .RowMajor ? CblasRowMajor : CblasColMajor
+    let atrans = a.arrangement == c.arrangement ? CblasNoTrans : CblasTrans
+    let btrans = b.arrangement == c.arrangement ? CblasNoTrans : CblasTrans
     cblas_dgemm(order, atrans, btrans, Int32(a.rows), Int32(b.columns), Int32(a.columns), α, a.pointer, Int32(a.stride), b.pointer, Int32(b.stride), β, c.mutablePointer, Int32(c.stride))
 }
 
@@ -62,51 +62,43 @@ public func inv<M: QuadraticType where M.Element == Double>(x: M) -> Matrix<Doub
 
 public func transpose<M: QuadraticType where M.Element == Double>(x: M) -> Matrix<Double> {
     let results = Matrix<Double>(rows: x.columns, columns: x.rows, repeatedValue: 0.0)
-    vDSP_mtransD(x.pointer, x.stride, results.mutablePointer, results.stride, vDSP_Length(results.rows), vDSP_Length(results.columns))
+    vDSP_mtransD(x.pointer, x.step, results.mutablePointer, results.step, vDSP_Length(results.rows), vDSP_Length(results.columns))
     return results
 }
 
 // MARK: - Operators
 
-public func +=<ML: MutableQuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) {
+public func +=<ML: MutableQuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(inout lhs: ML, rhs: MR) {
     precondition(lhs.rows == rhs.rows && lhs.columns == rhs.columns, "Matrix dimensions not compatible with addition")
-    if lhs.arragement == .RowMajor {
-        for r in 0..<lhs.rows {
-            lhs.rowReference(r) += rhs.rowReference(r)
-        }
-    } else {
-        for c in 0..<lhs.columns {
-            lhs.columnReference(c) += rhs.columnReference(c)
-        }
+    assert(lhs.span ≅ rhs.span)
+    
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        lhs[lhsIndex] += rhs[rhsIndex]
     }
 }
 
 public func +<ML: QuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) -> Matrix<Double> {
     precondition(lhs.rows == rhs.rows && lhs.columns == rhs.columns, "Matrix dimensions not compatible with addition")
 
-    let results = Matrix<Double>(lhs)
+    var results = Matrix<Double>(lhs)
     results += rhs
 
     return results
 }
 
-public func -=<ML: MutableQuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) {
+public func -=<ML: MutableQuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(inout lhs: ML, rhs: MR) {
     precondition(lhs.rows == rhs.rows && lhs.columns == rhs.columns, "Matrix dimensions not compatible with subtraction")
-    if lhs.arragement == .RowMajor {
-        for r in 0..<lhs.rows {
-            lhs.rowReference(r) -= rhs.rowReference(r)
-        }
-    } else {
-        for c in 0..<lhs.columns {
-            lhs.columnReference(c) -= rhs.columnReference(c)
-        }
+    assert(lhs.span ≅ rhs.span)
+    
+    for (lhsIndex, rhsIndex) in zip(lhs.span, rhs.span) {
+        lhs[lhsIndex] -= rhs[rhsIndex]
     }
 }
 
 public func -<ML: QuadraticType, MR: QuadraticType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) -> Matrix<Double> {
     precondition(lhs.rows == rhs.rows && lhs.columns == rhs.columns, "Matrix dimensions not compatible with subtraction")
 
-    let results = Matrix<Double>(lhs)
+    var results = Matrix<Double>(lhs)
     results -= rhs
     
     return results
@@ -124,20 +116,14 @@ public func *<ML: QuadraticType, MR: QuadraticType where ML.Element == Double, M
     return results
 }
 
-public func *=<ML: MutableQuadraticType where ML.Element == Double>(lhs: ML, rhs: Double) {
-    if lhs.arragement == .RowMajor {
-        for r in 0..<lhs.rows {
-            lhs.rowReference(r) *= rhs
-        }
-    } else {
-        for c in 0..<lhs.columns {
-            lhs.columnReference(c) *= rhs
-        }
+public func *=<ML: MutableQuadraticType where ML.Element == Double>(inout lhs: ML, rhs: Double) {
+    for index in lhs.span {
+        lhs[index] *= rhs
     }
 }
 
 public func *<MR: QuadraticType where MR.Element == Double>(lhs: Double, rhs: MR) -> Matrix<Double> {
-    let results = Matrix<Double>(rhs)
+    var results = Matrix<Double>(rhs)
     results *= lhs
     return results
 }
