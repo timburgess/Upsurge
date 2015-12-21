@@ -130,6 +130,7 @@ public func *<ML: LinearType where ML.Element == Double>(lhs: Double, rhs: ML) -
     return rhs * lhs
 }
 
+/*
 public func %<ML: LinearType, MR: LinearType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) -> ValueArray<Double> {
     return mod(lhs, rhs)
 }
@@ -142,3 +143,4 @@ infix operator • {}
 public func •<ML: LinearType, MR: LinearType where ML.Element == Double, MR.Element == Double>(lhs: ML, rhs: MR) -> Double {
     return dot(lhs, rhs)
 }
+*/
